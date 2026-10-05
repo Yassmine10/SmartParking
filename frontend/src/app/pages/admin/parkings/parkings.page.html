@@ -1,0 +1,371 @@
+<!-- ═══════════════════════════════════════════════════════════════
+     VUE : LISTE DES PARKINGS
+════════════════════════════════════════════════════════════════ -->
+<ng-container *ngIf="activeView === 'list'">
+
+  <ion-header class="ion-no-border">
+    <ion-toolbar color="primary">
+      <ion-buttons slot="start">
+        <ion-back-button defaultHref="/admin/dashboard" color="light"></ion-back-button>
+      </ion-buttons>
+      <ion-title>Mes Parkings</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="loadParkings()" fill="clear">
+          <ion-icon slot="icon-only" name="refresh-outline" color="light"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content>
+    <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+      <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
+
+    <!-- Skeleton -->
+    <div *ngIf="isLoading" style="padding:16px">
+      <ion-skeleton-text *ngFor="let i of [1,2,3,4]" animated
+        style="height:72px;border-radius:12px;margin-bottom:10px">
+      </ion-skeleton-text>
+    </div>
+
+    <!-- Liste vide -->
+    <div *ngIf="!isLoading && parkings.length === 0" class="empty-state">
+      <ion-icon name="business-outline"></ion-icon>
+      <p>Aucun parking trouvé</p>
+      <span>Cliquez sur + pour ajouter votre premier parking.</span>
+    </div>
+
+    <!-- Liste des parkings -->
+    <ion-list *ngIf="!isLoading && parkings.length > 0" lines="none" style="padding:8px">
+      <ion-item-sliding *ngFor="let p of parkings">
+
+        <!-- Swipe gauche : Voir détails -->
+        <ion-item-options side="start">
+          <ion-item-option color="primary" (click)="openDetail(p)">
+            <ion-icon slot="top" name="information-circle-outline"></ion-icon>
+            Détails
+          </ion-item-option>
+        </ion-item-options>
+
+        <!-- Item principal -->
+        <ion-item button detail="false" class="parking-item" (click)="openDetail(p)">
+          <div slot="start" class="parking-avatar">
+            <ion-icon name="business-outline"></ion-icon>
+          </div>
+          <ion-label>
+            <h2 class="parking-name">{{ p.name }}</h2>
+            <p class="parking-address">{{ p.address }}</p>
+            <div class="parking-meta">
+              <span>
+                <ion-icon name="car-outline"></ion-icon>
+                {{ p.availableSpaces }}/{{ p.totalSpaces }} places
+              </span>
+              <span>
+                <ion-icon name="cash-outline"></ion-icon>
+                {{ p.pricePerHour }} DT/h
+              </span>
+            </div>
+          </ion-label>
+          <ion-button slot="end" fill="clear" color="primary" (click)="openDetail(p); $event.stopPropagation()">
+            Détails
+          </ion-button>
+        </ion-item>
+
+        <!-- Swipe droite : Modifier + Supprimer -->
+        <ion-item-options side="end">
+          <ion-item-option color="warning" (click)="openEdit(p)">
+            <ion-icon slot="top" name="pencil-outline"></ion-icon>
+            Modifier
+          </ion-item-option>
+          <ion-item-option color="danger" (click)="confirmDelete(p)">
+            <ion-icon slot="top" name="trash-outline"></ion-icon>
+            Supprimer
+          </ion-item-option>
+        </ion-item-options>
+
+      </ion-item-sliding>
+    </ion-list>
+  </ion-content>
+
+  <!-- FAB Ajouter -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="primary" (click)="openAdd()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+</ng-container>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     VUE : FORMULAIRE AJOUT / MODIFICATION
+════════════════════════════════════════════════════════════════ -->
+<ng-container *ngIf="activeView === 'form'">
+
+  <ion-header class="ion-no-border">
+    <ion-toolbar color="primary">
+      <ion-buttons slot="start">
+        <ion-button fill="clear" (click)="showList()">
+          <ion-icon slot="icon-only" name="arrow-back-outline" color="light"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+      <ion-title>{{ isEditing ? 'Modifier le parking' : 'Nouveau parking' }}</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content>
+    <form [formGroup]="form" (ngSubmit)="save()" style="padding:12px">
+
+      <ion-card>
+        <ion-card-header>
+          <ion-card-subtitle>Informations générales</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-item>
+            <ion-input formControlName="name" label="Nom du parking *"
+              labelPlacement="floating" placeholder="Ex: Parking Central"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input formControlName="address" label="Adresse *"
+              labelPlacement="floating" placeholder="Rue, Ville"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-textarea formControlName="description" label="Description"
+              labelPlacement="floating" rows="2" placeholder="Optionnel"></ion-textarea>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card>
+        <ion-card-header>
+          <ion-card-subtitle>Coordonnées GPS</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="two-col">
+            <ion-item>
+              <ion-input formControlName="latitude" label="Latitude *"
+                labelPlacement="floating" type="number" placeholder="36.80"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input formControlName="longitude" label="Longitude *"
+                labelPlacement="floating" type="number" placeholder="10.18"></ion-input>
+            </ion-item>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card>
+        <ion-card-header>
+          <ion-card-subtitle>Tarifs & Capacité</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="two-col">
+            <ion-item>
+              <ion-input formControlName="pricePerHour" label="Prix/h (DT) *"
+                labelPlacement="floating" type="number" placeholder="2.50"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input formControlName="totalSpaces" label="Nb places *"
+                labelPlacement="floating" type="number" placeholder="10"></ion-input>
+            </ion-item>
+          </div>
+          <div class="two-col">
+            <ion-item>
+              <ion-input formControlName="openingTime" label="Ouverture"
+                labelPlacement="floating" placeholder="06:00"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input formControlName="closingTime" label="Fermeture"
+                labelPlacement="floating" placeholder="23:00"></ion-input>
+            </ion-item>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card>
+        <ion-card-header>
+          <ion-card-subtitle>Options</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-item>
+            <ion-input formControlName="imageUrl" label="URL de l'image"
+              labelPlacement="floating" placeholder="https://..."></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label>Parking couvert ?</ion-label>
+            <ion-toggle formControlName="isCovered" slot="end"></ion-toggle>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+
+      <div class="form-actions">
+        <ion-button expand="block" fill="outline" color="medium" (click)="showList()">
+          Annuler
+        </ion-button>
+        <ion-button expand="block" type="submit" color="primary"
+          [disabled]="form.invalid || isSaving">
+          <ion-spinner *ngIf="isSaving" name="crescent" style="margin-right:8px"></ion-spinner>
+          {{ isEditing ? 'Enregistrer' : 'Créer le parking' }}
+        </ion-button>
+      </div>
+
+    </form>
+  </ion-content>
+
+</ng-container>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     VUE : DÉTAILS D'UN PARKING
+════════════════════════════════════════════════════════════════ -->
+<ng-container *ngIf="activeView === 'detail' && selectedParking">
+
+  <ion-header class="ion-no-border">
+    <ion-toolbar color="primary">
+      <ion-buttons slot="start">
+        <ion-button fill="clear" (click)="showList()">
+          <ion-icon slot="icon-only" name="arrow-back-outline" color="light"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+      <ion-title>{{ selectedParking.name }}</ion-title>
+      <ion-buttons slot="end">
+        <ion-button fill="clear" (click)="openEdit(selectedParking)">
+          <ion-icon slot="icon-only" name="pencil-outline" color="light"></ion-icon>
+        </ion-button>
+        <ion-button fill="clear" (click)="confirmDelete(selectedParking)">
+          <ion-icon slot="icon-only" name="trash-outline" color="light"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content>
+
+    <!-- Image -->
+    <div class="detail-image" *ngIf="selectedParking.imageUrl">
+      <img [src]="selectedParking.imageUrl" [alt]="selectedParking.name" />
+    </div>
+    <div class="detail-image placeholder" *ngIf="!selectedParking.imageUrl">
+      <ion-icon name="business-outline"></ion-icon>
+    </div>
+
+    <!-- Infos générales -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ selectedParking.name }}</ion-card-title>
+        <ion-card-subtitle>{{ selectedParking.address }}</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="detail-stats">
+          <div class="detail-stat">
+            <ion-icon name="car-outline" color="primary"></ion-icon>
+            <span class="stat-val">{{ selectedParking.availableSpaces }}</span>
+            <span class="stat-lbl">Disponibles</span>
+          </div>
+          <div class="detail-stat">
+            <ion-icon name="grid-outline" color="secondary"></ion-icon>
+            <span class="stat-val">{{ selectedParking.totalSpaces }}</span>
+            <span class="stat-lbl">Total places</span>
+          </div>
+          <div class="detail-stat">
+            <ion-icon name="cash-outline" color="success"></ion-icon>
+            <span class="stat-val">{{ selectedParking.pricePerHour }}</span>
+            <span class="stat-lbl">DT / heure</span>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Description -->
+    <ion-card *ngIf="selectedParking.description">
+      <ion-card-header><ion-card-subtitle>Description</ion-card-subtitle></ion-card-header>
+      <ion-card-content>
+        <p style="margin:0;color:#475569">{{ selectedParking.description }}</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Horaires -->
+    <ion-card>
+      <ion-card-header><ion-card-subtitle>Horaires d'ouverture</ion-card-subtitle></ion-card-header>
+      <ion-card-content>
+        <ion-item lines="none">
+          <ion-icon name="time-outline" slot="start" color="primary"></ion-icon>
+          <ion-label>
+            <p>Ouverture : {{ selectedParking.openingTime || '06:00' }}</p>
+            <p>Fermeture : {{ selectedParking.closingTime || '23:00' }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- GPS -->
+    <ion-card>
+      <ion-card-header><ion-card-subtitle>Localisation GPS</ion-card-subtitle></ion-card-header>
+      <ion-card-content>
+        <ion-item lines="none">
+          <ion-icon name="location-outline" slot="start" color="danger"></ion-icon>
+          <ion-label>
+            <p>Lat: {{ selectedParking.latitude }}</p>
+            <p>Lng: {{ selectedParking.longitude }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Places -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Places de stationnement</ion-card-title>
+      </ion-card-header>
+      <ion-card-content style="padding:0">
+
+        <div *ngIf="isLoadingPlaces" style="padding:16px">
+          <ion-skeleton-text *ngFor="let i of [1,2,3]" animated style="height:50px;border-radius:8px;margin-bottom:8px"></ion-skeleton-text>
+        </div>
+
+        <div *ngIf="!isLoadingPlaces && places.length === 0" style="padding:16px;text-align:center;color:#94a3b8">
+          Aucune place enregistrée.
+        </div>
+
+        <ion-list *ngIf="!isLoadingPlaces && places.length > 0" lines="full">
+          <ion-item-sliding *ngFor="let place of places">
+            <ion-item>
+              <ion-icon name="car-outline" slot="start"
+                [color]="getStatutColor(getPlaceStatut(place))">
+              </ion-icon>
+              <ion-label>
+                <h3>Place {{ getPlaceNumero(place) }}</h3>
+                <p>{{ getPlaceType(place) }}</p>
+              </ion-label>
+              <ion-badge slot="end"
+                [color]="getStatutColor(getPlaceStatut(place))">
+                {{ getStatutLabel(getPlaceStatut(place)) }}
+              </ion-badge>
+            </ion-item>
+            <ion-item-options side="end">
+              <ion-item-option color="success" (click)="changeStatutPlace(place.id, 'libre')">Libre</ion-item-option>
+              <ion-item-option color="danger"  (click)="changeStatutPlace(place.id, 'occupee')">Occupée</ion-item-option>
+              <ion-item-option color="medium"  (click)="changeStatutPlace(place.id, 'hors_service')">H.S.</ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        </ion-list>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Actions -->
+    <div class="detail-actions">
+      <ion-button expand="block" color="warning" (click)="openEdit(selectedParking)">
+        <ion-icon slot="start" name="pencil-outline"></ion-icon>
+        Modifier
+      </ion-button>
+      <ion-button expand="block" color="danger" (click)="confirmDelete(selectedParking)">
+        <ion-icon slot="start" name="trash-outline"></ion-icon>
+        Supprimer
+      </ion-button>
+    </div>
+
+  </ion-content>
+
+</ng-container>

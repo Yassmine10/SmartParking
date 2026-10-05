@@ -1,0 +1,82 @@
+.auth-content {
+  --background: #f8fafc;
+}
+
+.auth-container {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 16px 20px 32px 20px;
+}
+
+.welcome-banner {
+  margin-bottom: 20px;
+
+  h2 {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 6px 0;
+  }
+
+  p {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.4;
+  }
+}
+
+.form-card {
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  margin: 0;
+  background: #ffffff;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+
+  .half-width {
+    flex: 1;
+  }
+}
+
+.custom-input-item {
+  --background: #f8fafc;
+  --border-radius: 12px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+
+  ion-icon {
+    font-size: 20px;
+    margin-right: 8px;
+  }
+}
+
+.submit-btn {
+  --background: #10b981;
+  --background-hover: #059669;
+  --border-radius: 12px;
+  font-weight: 700;
+  height: 48px;
+  margin-top: 24px;
+}
+
+.signup-prompt {
+  text-align: center;
+  margin-top: 20px;
+
+  p {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0;
+
+    a {
+      color: #10b981;
+      font-weight: 700;
+      text-decoration: none;
+    }
+  }
+}

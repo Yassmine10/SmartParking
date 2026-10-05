@@ -1,0 +1,250 @@
+$green:       #16a34a;
+$green-bg:    #f0fdf4;
+$green-border:#bbf7d0;
+
+// ── Fond de la modal ─────────────────────────────────────────────
+:host {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 24px 24px 0 0;
+  overflow: hidden;
+}
+
+// ── Drag handle ──────────────────────────────────────────────────
+.modal-handle {
+  width: 36px;
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  margin: 12px auto 0;
+  flex-shrink: 0;
+}
+
+// ── Header ───────────────────────────────────────────────────────
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  flex-shrink: 0;
+}
+
+.parking-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: $green;
+  letter-spacing: 0.6px;
+  margin-bottom: 4px;
+}
+
+.modal-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 4px;
+
+  ion-icon { font-size: 18px; color: #475569; }
+}
+
+// ── Contenu scrollable ────────────────────────────────────────────
+.modal-content {
+  --background: #ffffff;
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --padding-bottom: 32px;
+}
+
+// ── Carte place ───────────────────────────────────────────────────
+.place-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.place-badge {
+  width: 48px;
+  height: 48px;
+  background: $green;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  span {
+    font-size: 13px;
+    font-weight: 800;
+    color: #ffffff;
+  }
+}
+
+.place-info {
+  flex: 1;
+
+  .place-name { font-size: 15px; font-weight: 700; color: #0f172a; }
+  .place-sub  { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+}
+
+.place-status-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+
+  &.libre {
+    background: $green-bg;
+    color: $green;
+    border: 1.5px solid $green-border;
+  }
+}
+
+// ── Deux champs date/heure ─────────────────────────────────────────
+.two-fields-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.field-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.field-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 6px;
+}
+
+.field-icon-row {
+  ion-icon { font-size: 16px; color: #94a3b8; }
+}
+
+.field-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-top: 4px;
+}
+
+// ── Durée ─────────────────────────────────────────────────────────
+.duration-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-top: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 18px;
+}
+
+.duration-left {
+  .duration-value {
+    font-size: 17px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-top: 3px;
+  }
+}
+
+.duration-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: #f1f5f9;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.stepper-btn {
+  width: 38px;
+  height: 38px;
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  ion-icon { font-size: 18px; color: #475569; }
+  &:active { background: #e2e8f0; }
+}
+
+.stepper-val {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  min-width: 36px;
+  text-align: center;
+}
+
+// ── Total ─────────────────────────────────────────────────────────
+.total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+
+  .total-label { font-size: 14px; font-weight: 700; color: #0f172a; }
+  .total-sub   { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+  .total-amount {
+    font-size: 26px;
+    font-weight: 800;
+    color: #0f172a;
+  }
+}
+
+// ── Bouton confirmer ──────────────────────────────────────────────
+.confirm-btn {
+  width: 100%;
+  padding: 17px;
+  background: $green;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(22,163,74,0.35);
+
+  ion-icon { font-size: 20px; }
+
+  &:disabled {
+    background: #94a3b8;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):active { opacity: 0.88; }
+}

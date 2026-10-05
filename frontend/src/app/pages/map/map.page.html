@@ -1,0 +1,66 @@
+<ion-content [fullscreen]="true" class="map-content">
+
+  <!-- Barre de recherche flottante -->
+  <div class="search-bar-float">
+    <ion-icon name="search-outline"></ion-icon>
+    <input type="text" placeholder="Où souhaitez-vous vous garer ?" readonly (click)="goToSearch()" />
+    <button class="gps-btn" (click)="recenterOnUser()">
+      <ion-icon name="locate-outline"></ion-icon>
+    </button>
+  </div>
+
+  <!-- Carte Leaflet -->
+  <div id="parking-map"></div>
+
+  <!-- FAB recentrer -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed"
+           class="recenter-fab" [class.lifted]="selectedParking !== null">
+    <ion-fab-button size="small" color="light" (click)="recenterOnUser()">
+      <ion-icon name="locate" color="primary"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <!-- Bottom sheet parking sélectionné -->
+  <div *ngIf="selectedParking" class="bottom-sheet">
+    <div class="sheet-drag"></div>
+
+    <div class="sheet-body">
+      <img class="sheet-image"
+           [src]="selectedParking.imageUrl || selectedParking.image_url || 'assets/img/parking-placeholder.jpg'"
+           [alt]="selectedParking.name || selectedParking.nom" />
+
+      <div class="sheet-info">
+        <div class="sheet-meta-row">
+          <span class="sheet-meta">
+            {{ selectedParking.distanceInKm ? ('À ' + selectedParking.distanceInKm + ' km') : '' }}
+          </span>
+          <span class="sheet-badge"
+                [class.full]="(selectedParking.availableSpaces ?? selectedParking.places_libres ?? 0) === 0">
+            {{ (selectedParking.availableSpaces ?? selectedParking.places_libres ?? 0) > 0 ? 'Libre' : 'Complet' }}
+          </span>
+        </div>
+        <p class="sheet-name">{{ selectedParking.name || selectedParking.nom }}</p>
+        <p class="sheet-address">{{ selectedParking.address || selectedParking.adresse }}</p>
+      </div>
+    </div>
+
+    <div class="sheet-footer-row">
+      <div class="sheet-price">
+        {{ selectedParking.pricePerHour ?? selectedParking.prix_heure }} DT
+        <span>/ heure</span>
+      </div>
+      <div class="sheet-spaces">
+        <span class="dot-green"></span>
+        {{ selectedParking.availableSpaces ?? selectedParking.places_libres }} places libres
+      </div>
+    </div>
+
+    <div class="sheet-btn-row">
+      <button (click)="goToDetails(selectedParking.id)">
+        <ion-icon name="information-circle-outline"></ion-icon>
+        Voir les détails
+      </button>
+    </div>
+  </div>
+
+</ion-content>

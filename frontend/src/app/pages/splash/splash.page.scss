@@ -1,0 +1,227 @@
+// ── Palette ────────────────────────────────────────────────────────
+$green:       #16a34a;
+$green-light: #22c55e;
+$green-pale:  #bbf7d0;
+$green-bg:    #f0fdf4;
+
+// ── Content ────────────────────────────────────────────────────────
+.splash-content {
+  --background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+// ── Blobs de fond ─────────────────────────────────────────────────
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  background: $green-pale;
+  opacity: 0.45;
+  z-index: 0;
+
+  &.blob-top-right {
+    width: 220px;
+    height: 220px;
+    top: -60px;
+    right: -70px;
+  }
+
+  &.blob-bottom-left {
+    width: 160px;
+    height: 160px;
+    bottom: 100px;
+    left: -60px;
+  }
+}
+
+// ── Zone haut ─────────────────────────────────────────────────────
+.top-section {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 80px;
+  gap: 0;
+}
+
+// Icône de l'app
+.app-icon {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  background: $green;
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(22, 163, 74, 0.35);
+  margin-bottom: 24px;
+
+  ion-icon {
+    font-size: 40px;
+    color: #ffffff;
+  }
+}
+
+// Badge location sur le coin haut-droit de l'icône
+.icon-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 26px;
+  height: 26px;
+  background: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+
+  ion-icon {
+    font-size: 15px;
+    color: $green;
+  }
+}
+
+.app-name {
+  font-size: 30px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 8px;
+  letter-spacing: -0.5px;
+}
+
+.app-tagline {
+  font-size: 15px;
+  color: #64748b;
+  font-weight: 400;
+  margin: 0;
+}
+
+// ── Zone centrale ─────────────────────────────────────────────────
+.mid-section {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+// Route
+.road {
+  position: absolute;
+  width: 110%;
+  height: 60px;
+  background: #e2e8f0;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-6deg);
+  left: -5%;
+}
+
+.road-stripe {
+  width: 60%;
+  height: 5px;
+  background: #ffffff;
+  border-radius: 4px;
+  opacity: 0.7;
+}
+
+// Pin de localisation
+.location-pin {
+  position: absolute;
+  top: -24px;
+  right: 22%;
+  z-index: 3;
+
+  ion-icon {
+    font-size: 28px;
+    color: $green;
+    filter: drop-shadow(0 2px 4px rgba(22,163,74,0.4));
+  }
+}
+
+// Voiture
+.car-wrap {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.car-body {
+  width: 110px;
+  height: 80px;
+  background: $green;
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 28px rgba(22, 163, 74, 0.4);
+
+  .car-icon {
+    font-size: 52px;
+    color: #ffffff;
+  }
+}
+
+.car-wheels {
+  display: flex;
+  justify-content: space-between;
+  width: 82px;
+  margin-top: -6px;
+}
+
+.wheel {
+  width: 22px;
+  height: 22px;
+  background: #1e293b;
+  border-radius: 50%;
+  border: 3px solid #334155;
+}
+
+// ── Zone bas ──────────────────────────────────────────────────────
+.bottom-section {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 0 24px 48px;
+}
+
+.start-btn {
+  width: 100%;
+  padding: 18px 24px;
+  background: $green;
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 700;
+  border: none;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(22, 163, 74, 0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+  letter-spacing: 0.2px;
+
+  ion-icon {
+    font-size: 20px;
+  }
+
+  &:active {
+    transform: scale(0.97);
+    box-shadow: 0 3px 10px rgba(22, 163, 74, 0.3);
+  }
+}

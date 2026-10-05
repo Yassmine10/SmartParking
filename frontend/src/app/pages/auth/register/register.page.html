@@ -1,0 +1,71 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Créer un compte</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="header-container ion-text-center ion-padding-vertical">
+    <ion-icon name="person-add" color="primary" style="font-size: 64px;"></ion-icon>
+    <h2>Inscription</h2>
+    <p color="medium">Rejoignez SmartParking en quelques secondes</p>
+  </div>
+
+  <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+    <!-- Nom complet -->
+    <ion-item [class.ion-invalid]="nom?.invalid && nom?.touched">
+      <ion-label position="floating">Nom complet</ion-label>
+      <ion-input type="text" formControlName="nom" placeholder="Ex: Ahmed Ben Salah"></ion-input>
+      <ion-note slot="error" *ngIf="nom?.errors?.['required']">Le nom est requis</ion-note>
+      <ion-note slot="error" *ngIf="nom?.errors?.['minlength']">Au moins 2 caractères</ion-note>
+    </ion-item>
+
+    <!-- Email -->
+    <ion-item [class.ion-invalid]="email?.invalid && email?.touched" class="ion-margin-top">
+      <ion-label position="floating">Adresse email</ion-label>
+      <ion-input type="email" formControlName="email" inputmode="email" autocomplete="email"></ion-input>
+      <ion-note slot="error" *ngIf="email?.errors?.['required']">L'email est requis</ion-note>
+      <ion-note slot="error" *ngIf="email?.errors?.['email']">Format d'email invalide</ion-note>
+    </ion-item>
+
+    <!-- Mot de passe -->
+    <ion-item [class.ion-invalid]="mot_de_passe?.invalid && mot_de_passe?.touched" class="ion-margin-top">
+      <ion-label position="floating">Mot de passe</ion-label>
+      <ion-input [type]="afficherMotDePasse ? 'text' : 'password'" formControlName="mot_de_passe"></ion-input>
+      <ion-button fill="clear" slot="end" (click)="toggleMotDePasse()" type="button">
+        <ion-icon [name]="afficherMotDePasse ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+      </ion-button>
+      <ion-note slot="error" *ngIf="mot_de_passe?.errors?.['required']">Le mot de passe est requis</ion-note>
+      <ion-note slot="error" *ngIf="mot_de_passe?.errors?.['minlength']">Au moins 6 caractères</ion-note>
+    </ion-item>
+
+    <!-- Info : le rôle est attribué par le serveur -->
+    <ion-item lines="none" class="ion-margin-top">
+      <ion-icon name="information-circle-outline" slot="start" color="medium"></ion-icon>
+      <ion-label class="ion-text-wrap">
+        Votre compte est créé en tant que <strong>utilisateur</strong>.
+        L'accès gestionnaire est accordé par un administrateur.
+      </ion-label>
+    </ion-item>
+
+    <!-- Bouton Soumettre -->
+    <ion-button
+      expand="block"
+      type="submit"
+      color="primary"
+      class="ion-margin-top"
+      [disabled]="registerForm.invalid">
+      <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+      S'inscrire
+    </ion-button>
+  </form>
+
+  <div class="ion-text-center ion-margin-top">
+    <ion-button fill="clear" routerLink="/login">
+      Déjà un compte ? Se connecter
+    </ion-button>
+  </div>
+</ion-content>

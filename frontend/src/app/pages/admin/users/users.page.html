@@ -1,0 +1,58 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="dark">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/admin/dashboard" color="light"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Utilisateurs</ion-title>
+  </ion-toolbar>
+  <ion-toolbar color="dark">
+    <ion-searchbar placeholder="Rechercher..." (ionInput)="onSearch($event)" debounce="300" color="light"></ion-searchbar>
+    <ion-buttons slot="end" *ngIf="nbNonVerifies > 0">
+      <ion-button fill="outline" size="small" color="warning"
+                  [class.active-filter]="showUnverifiedOnly"
+                  (click)="toggleUnverifiedOnly()">
+        {{ nbNonVerifies }} non vérifié(s)
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div *ngIf="isLoading" style="padding:16px">
+    <ion-skeleton-text *ngFor="let i of [1,2,3]" animated style="height:80px;border-radius:16px;margin-bottom:10px"></ion-skeleton-text>
+  </div>
+
+  <ion-list *ngIf="!isLoading" lines="none" style="padding:8px 16px">
+    <ion-card *ngFor="let u of filtered" class="user-card">
+      <ion-card-content>
+        <div class="user-row">
+          <div class="avatar">{{ (u.firstName || u.email)[0] }}</div>
+          <div class="user-info">
+            <strong>{{ u.firstName }} {{ u.lastName }}</strong>
+            <p>{{ u.email }}</p>
+            <p *ngIf="u.totalReservations">Réservations : {{ u.totalReservations }}</p>
+            <ion-badge *ngIf="!u.emailVerifie" color="warning">
+              Email non vérifié
+            </ion-badge>
+          </div>
+          <div class="user-actions">
+            <ion-badge [color]="u.role === 'manager' ? 'dark' : 'primary'">{{ u.role }}</ion-badge>
+            <ion-button fill="clear" color="danger" size="small" (click)="confirmDelete(u)">
+              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+        <div class="joined">Inscrit le : {{ u.createdAt | date:'dd/MM/yyyy' }}</div>
+      </ion-card-content>
+    </ion-card>
+
+    <div *ngIf="filtered.length === 0" class="empty-state">
+      <ion-icon name="people-outline" color="medium"></ion-icon>
+      <p>Aucun utilisateur trouvé</p>
+    </div>
+  </ion-list>
+</ion-content>

@@ -1,0 +1,68 @@
+<ion-content class="qr-content" [fullscreen]="true">
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-box">
+    <ion-spinner name="crescent" color="light"></ion-spinner>
+  </div>
+
+  <div *ngIf="!isLoading && reservation" class="qr-body">
+
+    <!-- ── Badge statut ── -->
+    <div class="status-pill">
+      <ion-icon name="checkmark-outline"></ion-icon>
+      Réservation confirmée
+    </div>
+
+    <!-- ── Titre ── -->
+    <h1 class="qr-title">Présentez ce code<br>à l'entrée</h1>
+    <p class="qr-validity">
+      Valable aujourd'hui de {{ reservation.startTime | date:'HH:mm' }}
+      à {{ reservation.endTime | date:'HH:mm' }}
+    </p>
+
+    <!-- ── QR Code ── -->
+    <div class="qr-card">
+      <img *ngIf="qrCodeUrl" [src]="qrCodeUrl" alt="QR Code" class="qr-img" />
+      <div *ngIf="!qrCodeUrl" class="qr-placeholder">
+        <ion-spinner name="crescent" color="medium"></ion-spinner>
+      </div>
+      <div class="qr-ref">{{ reservation.reservationNumber || reservation.qrCodeData || ('SP-' + reservation.id) }}</div>
+    </div>
+
+    <!-- ── Carte infos ── -->
+    <div class="info-card">
+
+      <div class="info-card-top">
+        <div class="info-place-col">
+          <div class="info-mini-label">PLACE</div>
+          <div class="info-place-num">{{ reservation.spaceNumber || '—' }}</div>
+        </div>
+        <div class="info-divider"></div>
+        <div class="info-parking-col">
+          <div class="info-mini-label">PARKING</div>
+          <div class="info-parking-name">{{ reservation.parkingName }}</div>
+          <div class="info-parking-addr">{{ reservation.parkingAddress }}</div>
+        </div>
+      </div>
+
+      <div class="info-card-bottom">
+        <div class="time-block">
+          <div class="info-mini-label">ARRIVÉE</div>
+          <div class="time-val">{{ reservation.startTime | date:'HH:mm' }}</div>
+        </div>
+        <ion-icon name="arrow-forward-outline" class="arrow-icon"></ion-icon>
+        <div class="time-block">
+          <div class="info-mini-label">DÉPART</div>
+          <div class="time-val">{{ reservation.endTime | date:'HH:mm' }}</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Bouton annuler ── -->
+    <button *ngIf="canCancel" class="cancel-btn" (click)="confirmCancel()">
+      Annuler la réservation
+    </button>
+
+  </div>
+</ion-content>

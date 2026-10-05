@@ -1,0 +1,307 @@
+// ── Base ──────────────────────────────────────────────────────────
+$green:        #16a34a;
+$green-light:  #22c55e;
+$green-bg:     #f0fdf4;
+$green-border: #bbf7d0;
+
+.details-content {
+  --background: #ffffff;
+}
+
+.loading-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+}
+
+// ── Hero image ────────────────────────────────────────────────────
+.hero-wrap {
+  position: relative;
+  width: 100%;
+  height: 240px;
+}
+
+.hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.back-btn {
+  position: absolute;
+  top: 16px;
+  left: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.92);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+
+  ion-icon { font-size: 20px; color: #0f172a; }
+}
+
+.hero-credit {
+  position: absolute;
+  bottom: 8px;
+  left: 12px;
+  font-size: 10px;
+  color: rgba(255,255,255,0.75);
+}
+
+// ── Sheet principale ──────────────────────────────────────────────
+.main-sheet {
+  padding: 20px 18px 16px;
+}
+
+// Ligne haut : district + badge
+.top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.district-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: $green;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.avail-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 20px;
+  background: $green-bg;
+  color: $green;
+  border: 1.5px solid $green-border;
+
+  &.full {
+    background: #fee2e2;
+    color: #dc2626;
+    border-color: #fecaca;
+  }
+}
+
+// Nom du parking
+.parking-name {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 8px;
+  line-height: 1.15;
+}
+
+// Adresse
+.address-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 18px;
+
+  ion-icon { font-size: 15px; color: #94a3b8; flex-shrink: 0; }
+}
+
+// Bloc horaires + prix
+.info-band {
+  display: flex;
+  align-items: center;
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 24px;
+  border: 1px solid #e2e8f0;
+}
+
+.info-band-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+
+  .band-icon { font-size: 22px; color: $green; }
+
+  .band-title { font-size: 14px; font-weight: 700; color: #0f172a; }
+  .band-sub   { font-size: 11px; color: #94a3b8; margin-top: 1px; }
+}
+
+.info-band-divider {
+  width: 1px;
+  height: 40px;
+  background: #e2e8f0;
+  margin: 0 16px;
+}
+
+.info-band-right {
+  text-align: right;
+
+  .band-price { font-size: 20px; font-weight: 800; color: $green; }
+  .band-sub   { font-size: 11px; color: #94a3b8; }
+  .band-day   { font-size: 11px; color: #94a3b8; }
+}
+
+// ── Sélection de place ────────────────────────────────────────────
+.places-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 10px;
+
+  .places-title { font-size: 17px; font-weight: 800; color: #0f172a; margin: 0 0 4px; }
+  .places-sub   { font-size: 12px; color: #94a3b8; margin: 0; }
+}
+
+.level-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  background: #f1f5f9;
+  color: #475569;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+// Légende
+.legend-row {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  &.libre   .dot { background: $green; }
+  &.occupee .dot { background: #ef4444; }
+  &.hors    .dot { background: #f59e0b; }
+}
+
+// Grille des places
+.spaces-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.space-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-radius: 14px;
+  padding: 12px 4px 10px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.1s;
+
+  .space-car-icon { font-size: 22px; }
+  .space-num      { font-size: 11px; font-weight: 700; }
+
+  // ── Statuts ──
+  &.libre {
+    background: $green-bg;
+    border-color: $green-border;
+    .space-car-icon { color: $green; }
+    .space-num      { color: $green; }
+  }
+
+  &.occupee {
+    background: #fff1f2;
+    border-color: #fecdd3;
+    .space-car-icon { color: #ef4444; }
+    .space-num      { color: #ef4444; }
+  }
+
+  &.hors_service {
+    background: #fffbeb;
+    border-color: #fde68a;
+    .space-car-icon { color: #f59e0b; }
+    .space-num      { color: #f59e0b; }
+  }
+
+  // ── Sélectionnée ──
+  &.selected {
+    background: $green !important;
+    border-color: $green !important;
+    box-shadow: 0 4px 14px rgba(22,163,74,0.4);
+    .space-car-icon { color: #ffffff !important; }
+    .space-num      { color: #ffffff !important; }
+    transform: scale(1.04);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.75;
+  }
+}
+
+// ── Barre fixe de réservation ─────────────────────────────────────
+.booking-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  padding: 12px 18px calc(12px + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+}
+
+.booking-bar-left {
+  display: flex;
+  flex-direction: column;
+
+  .bar-place { font-size: 13px; font-weight: 700; color: #0f172a; }
+  .bar-price { font-size: 12px; color: #64748b; }
+}
+
+.reserve-btn {
+  flex: 1;
+  max-width: 200px;
+  padding: 14px;
+  background: $green;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(22,163,74,0.4);
+  transition: opacity 0.15s;
+
+  &:disabled {
+    background: #94a3b8;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):active { opacity: 0.88; }
+}

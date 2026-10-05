@@ -1,0 +1,58 @@
+<ion-card class="parking-card">
+
+  <!-- En-tête de la carte avec nom et distance -->
+  <ion-card-header>
+    <ion-card-title>
+      <ion-icon name="car" color="primary"></ion-icon>
+      {{ parking?.nom }}
+    </ion-card-title>
+
+    <!-- Affiche la distance si elle est fournie (@Input distance) -->
+    <ion-card-subtitle *ngIf="distance">
+      <ion-icon name="navigate-outline"></ion-icon>
+      {{ distanceTexte }}
+    </ion-card-subtitle>
+  </ion-card-header>
+
+  <ion-card-content>
+
+    <!-- Adresse du parking -->
+    <ion-item lines="none" class="ion-no-padding">
+      <ion-icon name="location-outline" slot="start" color="medium"></ion-icon>
+      <ion-label>{{ parking?.adresse }}</ion-label>
+    </ion-item>
+
+    <!-- Prix par heure -->
+    <ion-item lines="none" class="ion-no-padding">
+      <ion-icon name="pricetag-outline" slot="start" color="medium"></ion-icon>
+      <ion-label>{{ parking?.prix_heure | currency:'TND':'symbol':'1.2-2' }} / heure</ion-label>
+    </ion-item>
+
+    <!-- Disponibilité des places -->
+    <ion-item lines="none" class="ion-no-padding">
+      <ion-icon name="layers-outline" slot="start" color="medium"></ion-icon>
+      <ion-label>
+        <span [attr.color]="couleurDisponibilite">
+          {{ parking?.places_libres }} / {{ parking?.total_places }} places libres
+        </span>
+      </ion-label>
+      <!-- Badge de couleur selon disponibilité -->
+      <ion-badge slot="end" [color]="couleurDisponibilite">
+        {{ pourcentageLibre }}%
+      </ion-badge>
+    </ion-item>
+
+    <!-- Bouton "Voir détails" — affiché selon @Input afficherBouton -->
+    <ion-button
+      *ngIf="afficherBouton"
+      expand="block"
+      fill="solid"
+      color="primary"
+      class="ion-margin-top"
+      (click)="onVoirDetails()">
+      <ion-icon name="eye-outline" slot="start"></ion-icon>
+      Voir les détails
+    </ion-button>
+
+  </ion-card-content>
+</ion-card>

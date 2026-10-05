@@ -1,0 +1,50 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="light">
+    <ion-title>Notifications</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="markAllAsRead()" color="primary" size="small">
+        <ion-icon slot="start" name="checkmark-done-outline"></ion-icon>
+        Tout lire
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="notifs-content">
+  <ion-refresher slot="fixed" (ionRefresh)="loadNotifications($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div *ngIf="isLoading" class="ion-padding text-center">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Chargement des alertes...</p>
+  </div>
+
+  <div *ngIf="!isLoading && notifications.length === 0" class="empty-state">
+    <ion-icon name="notifications-off-outline" class="empty-icon"></ion-icon>
+    <h4>Aucune notification</h4>
+    <p>Vous êtes à jour ! Vos rappels et confirmations apparaîtront ici.</p>
+  </div>
+
+  <div *ngIf="!isLoading && notifications.length > 0" class="notifs-list">
+    <div
+      *ngFor="let n of notifications"
+      class="notif-item"
+      [class.unread]="!n.isRead"
+      (click)="markAsRead(n)">
+      <div class="icon-wrap" [ngClass]="getColor(n.type)">
+        <ion-icon [name]="getIcon(n.type)"></ion-icon>
+      </div>
+
+      <div class="notif-text">
+        <div class="header-row">
+          <h4 class="title">{{ n.title }}</h4>
+          <span class="time">{{ n.createdAt | date:'dd/MM HH:mm' }}</span>
+        </div>
+        <p class="msg">{{ n.message }}</p>
+      </div>
+
+      <div *ngIf="!n.isRead" class="unread-dot"></div>
+    </div>
+  </div>
+</ion-content>

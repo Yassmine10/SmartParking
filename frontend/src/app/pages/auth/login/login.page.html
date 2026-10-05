@@ -1,0 +1,79 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>SmartParking 🚗</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- Logo et titre -->
+  <div class="logo-container ion-text-center ion-padding-vertical">
+    <ion-icon name="car-sport" color="primary" style="font-size: 80px;"></ion-icon>
+    <h2>Bienvenue</h2>
+    <p color="medium">Connectez-vous pour continuer</p>
+  </div>
+
+  <!-- Formulaire réactif de connexion -->
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+    <!-- Champ email -->
+    <ion-item [class.ion-invalid]="email?.invalid && email?.touched">
+      <ion-label position="floating">Email</ion-label>
+      <ion-input
+        type="email"
+        formControlName="email"
+        inputmode="email"
+        autocomplete="email">
+      </ion-input>
+      <ion-note slot="error" *ngIf="email?.errors?.['required']">L'email est requis</ion-note>
+      <ion-note slot="error" *ngIf="email?.errors?.['email']">Format d'email invalide</ion-note>
+    </ion-item>
+
+    <!-- Champ mot de passe -->
+    <ion-item [class.ion-invalid]="mot_de_passe?.invalid && mot_de_passe?.touched" class="ion-margin-top">
+      <ion-label position="floating">Mot de passe</ion-label>
+      <ion-input
+        [type]="afficherMotDePasse ? 'text' : 'password'"
+        formControlName="mot_de_passe"
+        autocomplete="current-password">
+      </ion-input>
+      <!-- Bouton toggle visibilité mot de passe -->
+      <ion-button fill="clear" slot="end" (click)="toggleMotDePasse()" type="button">
+        <ion-icon [name]="afficherMotDePasse ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+      </ion-button>
+      <ion-note slot="error" *ngIf="mot_de_passe?.errors?.['required']">Le mot de passe est requis</ion-note>
+      <ion-note slot="error" *ngIf="mot_de_passe?.errors?.['minlength']">Minimum 6 caractères</ion-note>
+    </ion-item>
+
+    <!-- Bouton de connexion -->
+    <ion-button
+      expand="block"
+      type="submit"
+      color="primary"
+      class="ion-margin-top"
+      [disabled]="loginForm.invalid">
+      <ion-icon name="log-in-outline" slot="start"></ion-icon>
+      Se connecter
+    </ion-button>
+
+  </form>
+
+  <!-- Lien vers l'inscription -->
+  <div class="ion-text-center ion-margin-top">
+    <ion-button fill="clear" routerLink="/register">
+      Pas de compte ? S'inscrire
+    </ion-button>
+  </div>
+
+  <!-- Comptes de démonstration (masqués en production) -->
+  <ion-card color="light" class="ion-margin-top" *ngIf="afficherComptesTest">
+    <ion-card-header>
+      <ion-card-subtitle>🧪 Comptes de test</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <p><strong>Utilisateur :</strong> user&#64;smartparking.com / Password123!</p>
+      <p><strong>Gestionnaire :</strong> manager&#64;smartparking.com / Password123!</p>
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

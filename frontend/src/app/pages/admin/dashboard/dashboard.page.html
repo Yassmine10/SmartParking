@@ -1,0 +1,130 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="dash-toolbar">
+    <ion-title class="dash-title">Statistiques</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="goToProfile()" fill="clear">
+        <ion-icon slot="icon-only" name="person-circle-outline"></ion-icon>
+      </ion-button>
+      <ion-button (click)="confirmLogout()" fill="clear">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="dash-content">
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Skeleton -->
+  <div *ngIf="isLoading" class="skeleton-wrap">
+    <ion-skeleton-text animated class="skel-period"></ion-skeleton-text>
+    <ion-skeleton-text animated class="skel-hero"></ion-skeleton-text>
+    <ion-skeleton-text animated class="skel-chart"></ion-skeleton-text>
+    <ion-skeleton-text animated class="skel-chart"></ion-skeleton-text>
+  </div>
+
+  <!-- Erreur de chargement : aucun chiffre fictif n'est substitué -->
+  <div *ngIf="!isLoading && erreurChargement" class="ion-padding ion-text-center">
+    <ion-icon name="cloud-offline-outline" color="medium" style="font-size: 56px;"></ion-icon>
+    <h3>Statistiques indisponibles</h3>
+    <p class="ion-text-wrap">Le chargement des statistiques a échoué. Aucune donnée n'est affichée
+      afin de ne pas vous induire en erreur.</p>
+    <ion-button expand="block" color="primary" (click)="loadStats()">
+      <ion-icon name="refresh-outline" slot="start"></ion-icon>
+      Réessayer
+    </ion-button>
+  </div>
+
+  <div *ngIf="!isLoading && !erreurChargement" class="dash-body">
+
+    <!-- ── Sélecteur de période ── -->
+    <div class="period-selector">
+      <button class="period-btn" [class.active]="activePeriod === '7j'" (click)="setPeriod('7j')">7 jours</button>
+      <button class="period-btn" [class.active]="activePeriod === '30j'" (click)="setPeriod('30j')">30 jours</button>
+      <button class="period-btn" [class.active]="activePeriod === '3m'" (click)="setPeriod('3m')">3 mois</button>
+    </div>
+
+    <!-- ── Hero row : Taux d'occupation + Revenus ── -->
+    <div class="hero-row">
+
+      <!-- Taux d'occupation — carte verte principale -->
+      <div class="hero-card hero-main">
+        <span class="hero-label">TAUX D'OCCUPATION</span>
+        <div class="hero-value">{{ stats.occupancyRate | number:'1.0-1' }}<span class="hero-unit">%</span></div>
+        <div class="hero-trend" [class.up]="trendOccupancy !== null" *ngIf="trendOccupancy !== null">
+          <ion-icon [name]="trendOccupancy >= 0 ? 'arrow-up-outline' : 'arrow-down-outline'"></ion-icon>
+          {{ trendOccupancy > 0 ? '+' : '' }}{{ trendOccupancy }}% sur 3 jours
+        </div>
+      </div>
+
+      <!-- Revenus — carte secondaire blanche -->
+      <div class="hero-card hero-secondary">
+        <span class="hero-label">REVENUS</span>
+        <div class="hero-value secondary">{{ stats.todayRevenue | number:'1.0-0' }}<span class="hero-unit-small"> DT</span></div>
+        <div class="hero-trend green-text" [class.up]="trendRevenue !== null" *ngIf="trendRevenue !== null">
+          <ion-icon [name]="trendRevenue >= 0 ? 'arrow-up-outline' : 'arrow-down-outline'"></ion-icon>
+          {{ trendRevenue > 0 ? '+' : '' }}{{ trendRevenue }}%
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Réservations aujourd'hui + mini bar chart ── -->
+    <div class="reserv-row">
+      <div class="reserv-info">
+        <span class="reserv-label">RÉSERVATIONS AUJOURD'HUI</span>
+        <span class="reserv-value">{{ stats.todayReservations }}</span>
+      </div>
+      <div class="reserv-chart-wrap">
+        <canvas #miniBarChart height="56"></canvas>
+      </div>
+    </div>
+
+    <!-- ── Graphique barres : Occupation par heure ── -->
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div>
+          <div class="chart-title">Réservations par heure d'arrivée</div>
+          <div class="chart-sub">Toutes réservations hors annulées</div>
+        </div>
+        <span class="chart-badge" *ngIf="trendOccupancy !== null">{{ trendOccupancy > 0 ? '+' : '' }}{{ trendOccupancy }}%</span>
+      </div>
+      <canvas #occupancyChart height="130"></canvas>
+    </div>
+
+    <!-- ── Graphique ligne : Revenus par jour ── -->
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div>
+          <div class="chart-title">Revenus par jour</div>
+          <div class="chart-sub">Cette semaine</div>
+        </div>
+        <span class="chart-total">{{ stats.todayRevenue | number:'1.0-0' }} DT</span>
+      </div>
+      <canvas #revenueChart height="130"></canvas>
+    </div>
+
+    <!-- ── Accès rapide ── -->
+    <div class="quick-row">
+      <button class="quick-btn" (click)="navigate('/admin/parkings')">
+        <ion-icon name="business-outline"></ion-icon>
+        <span>Parkings</span>
+      </button>
+      <button class="quick-btn" (click)="navigate('/admin/reservations')">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <span>Réservations</span>
+      </button>
+      <button class="quick-btn" (click)="navigate('/admin/users')">
+        <ion-icon name="people-outline"></ion-icon>
+        <span>Utilisateurs</span>
+      </button>
+      <button class="quick-btn" (click)="navigate('/admin/qr-scanner')">
+        <ion-icon name="qr-code-outline"></ion-icon>
+        <span>Scanner</span>
+      </button>
+    </div>
+
+  </div>
+</ion-content>

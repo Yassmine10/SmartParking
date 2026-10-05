@@ -1,0 +1,61 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="dark">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/admin/dashboard" color="light"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Réservations</ion-title>
+  </ion-toolbar>
+  <ion-toolbar color="dark">
+    <ion-searchbar placeholder="Rechercher..." (ionInput)="onSearch($event)" debounce="300" color="light"></ion-searchbar>
+  </ion-toolbar>
+  <ion-toolbar color="dark">
+    <ion-segment [(ngModel)]="statusFilter" (ionChange)="onStatusFilter($any($event).detail.value)" color="light">
+      <ion-segment-button value="ALL"><ion-label>Tous</ion-label></ion-segment-button>
+      <ion-segment-button value="CONFIRMED"><ion-label>Confirmée</ion-label></ion-segment-button>
+      <ion-segment-button value="ACTIVE"><ion-label>Active</ion-label></ion-segment-button>
+      <ion-segment-button value="COMPLETED"><ion-label>Terminée</ion-label></ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div *ngIf="isLoading" style="padding:16px">
+    <ion-skeleton-text *ngFor="let i of [1,2,3,4]" animated style="height:100px;border-radius:16px;margin-bottom:10px"></ion-skeleton-text>
+  </div>
+
+  <div *ngIf="!isLoading">
+    <div *ngIf="filtered.length === 0" class="empty-state">
+      <ion-icon name="calendar-outline" color="medium"></ion-icon>
+      <p>Aucune réservation trouvée</p>
+    </div>
+
+    <ion-list *ngIf="filtered.length > 0">
+      <ion-item-sliding *ngFor="let r of filtered">
+        <ion-item>
+          <ion-label>
+            <h2>#{{ r.id }} — {{ r.parkingName }}</h2>
+            <p>Place {{ r.spaceNumber }} · {{ r.userName }}</p>
+            <p>📅 {{ r.startTime | date:'dd/MM/yyyy HH:mm' }} · ⏱️ {{ r.durationHours }}h · 💰 {{ r.totalPrice }} DT</p>
+          </ion-label>
+          <ion-badge slot="end" [color]="getStatusColor(r.status)">{{ getStatusLabel(r.status) }}</ion-badge>
+        </ion-item>
+        <ion-item-options side="end">
+          <ion-item-option color="success"
+            *ngIf="r.status === 'CONFIRMED'"
+            (click)="confirmReservation(r)">
+            <ion-icon slot="icon-only" name="checkmark-outline"></ion-icon>
+          </ion-item-option>
+          <ion-item-option color="danger"
+            *ngIf="r.status === 'CONFIRMED' || r.status === 'ACTIVE'"
+            (click)="cancelReservation(r)">
+            <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </ion-list>
+  </div>
+</ion-content>

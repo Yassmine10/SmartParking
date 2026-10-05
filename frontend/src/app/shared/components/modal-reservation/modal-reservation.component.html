@@ -1,0 +1,88 @@
+<!-- ── Drag handle ── -->
+<div class="modal-handle"></div>
+
+<!-- ── Header ── -->
+<div class="modal-header">
+  <div class="modal-header-left">
+    <span class="parking-label">{{ (parking?.nom || parking?.name || '') | uppercase }}</span>
+    <h2 class="modal-title">Votre réservation</h2>
+  </div>
+  <button class="close-btn" (click)="annuler()">
+    <ion-icon name="close-outline"></ion-icon>
+  </button>
+</div>
+
+<ion-content class="modal-content">
+  <form #resForm="ngForm" (ngSubmit)="confirmerReservation(resForm)">
+
+    <!-- ── Carte place sélectionnée ── -->
+    <div class="place-card">
+      <div class="place-badge">
+        <span>{{ getPlaceNumero() }}</span>
+      </div>
+      <div class="place-info">
+        <div class="place-name">Place {{ getPlaceNumero() }}</div>
+        <div class="place-sub">Niveau -1 · {{ getPlaceType() }}</div>
+      </div>
+      <div class="place-status-badge libre">Libre</div>
+    </div>
+
+    <!-- ── Date + Heure de début ── -->
+    <div class="two-fields-row">
+
+      <div class="field-box">
+        <div class="field-label">Date</div>
+        <div class="field-icon-row">
+          <ion-icon name="calendar-outline" class="field-icon"></ion-icon>
+        </div>
+        <div class="field-value">{{ todayLabel }}</div>
+        <input type="hidden" [(ngModel)]="reservationModel.debut" name="debut" />
+      </div>
+
+      <div class="field-box">
+        <div class="field-label">Début</div>
+        <div class="field-icon-row">
+          <ion-icon name="time-outline" class="field-icon"></ion-icon>
+        </div>
+        <div class="field-value">{{ heureDebut }}</div>
+      </div>
+
+    </div>
+
+    <!-- ── Durée ── -->
+    <div class="duration-row">
+      <div class="duration-left">
+        <div class="field-label">Durée</div>
+        <div class="duration-value">{{ reservationModel.duree_heures }} heure{{ reservationModel.duree_heures > 1 ? 's' : '' }}</div>
+      </div>
+      <div class="duration-stepper">
+        <button type="button" class="stepper-btn" (click)="decrementDuree()">
+          <ion-icon name="remove-outline"></ion-icon>
+        </button>
+        <span class="stepper-val">{{ reservationModel.duree_heures }} h</span>
+        <button type="button" class="stepper-btn" (click)="incrementDuree()">
+          <ion-icon name="add-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Total estimé ── -->
+    <div class="total-row">
+      <div class="total-left">
+        <div class="total-label">Total estimé</div>
+        <div class="total-sub">{{ prixHeure }} DT × {{ reservationModel.duree_heures }} h</div>
+      </div>
+      <div class="total-amount">{{ montantTotal | number:'1.2-2' }} DT</div>
+    </div>
+
+    <!-- ── Bouton Confirmer ── -->
+    <button
+      type="submit"
+      class="confirm-btn"
+      [disabled]="!resForm.valid">
+      <ion-icon name="shield-checkmark-outline"></ion-icon>
+      Confirmer et payer
+    </button>
+
+  </form>
+</ion-content>

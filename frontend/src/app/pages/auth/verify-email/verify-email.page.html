@@ -1,0 +1,68 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="light">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Vérification du compte</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="auth-content">
+  <div class="auth-container">
+
+    <!-- Cas nominal : aucun jeton, on attend le clic sur le lien -->
+    <div class="header-box" *ngIf="etat === 'attente'">
+      <ion-icon name="mail-open-outline" class="icon-lock"></ion-icon>
+      <h2>Vérifiez votre adresse email</h2>
+      <p *ngIf="email">
+        Un lien de confirmation vient d'être envoyé à <strong>{{ email }}</strong>.
+        Cliquez sur ce lien pour activer votre compte.
+      </p>
+      <p *ngIf="!email">
+        Un lien de confirmation vous a été envoyé par email. Cliquez sur ce lien
+        pour activer votre compte.
+      </p>
+    </div>
+
+    <div class="header-box" *ngIf="etat === 'verification'">
+      <ion-spinner name="crescent"></ion-spinner>
+      <h2>Confirmation en cours...</h2>
+    </div>
+
+    <div class="header-box" *ngIf="etat === 'succes'">
+      <ion-icon name="checkmark-circle-outline" class="icon-success"></ion-icon>
+      <h2>Compte activé</h2>
+      <p>Votre adresse email est confirmée. Vous pouvez maintenant réserver une place de parking.</p>
+    </div>
+
+    <div class="header-box" *ngIf="etat === 'erreur'">
+      <ion-icon name="warning-outline" class="icon-error"></ion-icon>
+      <h2>Lien invalide</h2>
+      <p>{{ messageErreur }}</p>
+    </div>
+
+    <ion-card *ngIf="etat === 'attente' || etat === 'erreur'" class="form-card">
+      <ion-card-content>
+        <ion-button expand="block" class="submit-btn" (click)="renvoyer()">
+          Renvoyer l'email
+        </ion-button>
+        <ion-button expand="block" fill="clear" color="medium" (click)="allerConnexion()">
+          Retour à la connexion
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card *ngIf="etat === 'succes'" class="form-card">
+      <ion-card-content>
+        <ion-button expand="block" class="submit-btn" (click)="allerConnexion()">
+          Accéder à l'application
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <p class="info-bulle" *ngIf="etat === 'attente'">
+      Le lien est valable 24 heures. Pensez à vérifier le dossier des courriers
+      indésirables.
+    </p>
+  </div>
+</ion-content>

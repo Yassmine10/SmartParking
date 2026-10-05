@@ -1,0 +1,48 @@
+# ====================================================================
+# Fins de ligne normalisées
+# ====================================================================
+# Le projet est développé sous Windows mais le backend tourne souvent sous
+# WSL ou Linux. Sans ce fichier, chaque fichier change de contenu selon la
+# machine qui le touche, et Git affiche des dizaines de
+# "LF will be replaced by CRLF" à chaque commit.
+#
+# Règle appliquée :
+#   - le dépôt stocke toujours des LF (le standard Linux, celui qu'on
+#     attend d'un fichier source) ;
+#   - à la sortie (checkout), Git remet des CRLF sur Windows uniquement.
+# ====================================================================
+
+# Valeur par défaut : tout est traité comme du texte, LF dans le dépôt.
+* text=auto eol=lf
+
+# Fichiers Windows qui DOIVENT garder CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Fichiers qui ne doivent jamais être convertis.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.svg  text eol=lf
+*.webp binary
+*.ttf  binary
+*.woff binary
+*.woff2 binary
+*.mp3  binary
+*.mp4  binary
+*.pdf  binary
+
+# Projets Visual Studio / Android : Gradle comprend LF sans problème,
+# mais les fichiers de solution Windows restent en CRLF.
+*.sln      text eol=crlf
+*.csproj   text eol=crlf
+gradlew    text eol=lf
+gradlew.bat text eol=crlf
+
+# JSON et lockfiles : LF strict, sinon npm peut se plaindre.
+*.json      text eol=lf
+*lock.json  text eol=lf
+package-lock.json text eol=lf
