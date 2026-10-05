@@ -174,6 +174,24 @@ export class ParkingService {
   }
 
   /**
+   * Ajoute une place à un parking du gestionnaire connecté.
+   */
+  createPlace(parkingId: number, numero: string, typePlace: string): Observable<{ succes: boolean; place: Place }> {
+    return this.http.post<{ succes: boolean; place: Place }>(`${this.apiUrl}/places`, {
+      id_parking: parkingId,
+      numero,
+      type_place: typePlace
+    });
+  }
+
+  /**
+   * Supprime une place uniquement si elle n'a aucun historique de réservation.
+   */
+  deletePlace(placeId: number): Observable<{ succes: boolean; message: string }> {
+    return this.http.delete<{ succes: boolean; message: string }>(`${this.apiUrl}/places/${placeId}`);
+  }
+
+  /**
    * Met à jour le statut d'une place (gestionnaire)
    */
   updatePlaceStatus(placeId: number, statut: string): Observable<{ succes: boolean; place: Place }> {
