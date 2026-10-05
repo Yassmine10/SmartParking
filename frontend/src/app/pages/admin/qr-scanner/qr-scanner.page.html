@@ -20,7 +20,10 @@
       <p>Scannez le QR Code présenté par l'utilisateur pour valider son entrée ou sa sortie.</p>
     </div>
 
-    <div id="qr-reader" *ngIf="isScanning" class="qr-reader-box"></div>
+    <div *ngIf="isScanning" class="loading-section">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Scanner en cours. Utilisez le bouton d'annulation du scanner pour arrêter.</p>
+    </div>
 
     <div *ngIf="scanError" class="scan-error">
       <ion-icon name="warning-outline" color="danger"></ion-icon>
@@ -31,10 +34,6 @@
       <ion-button *ngIf="!isScanning" expand="block" color="primary" size="large" (click)="startScanner()">
         <ion-icon slot="start" name="camera-outline"></ion-icon>
         Démarrer le scanner
-      </ion-button>
-      <ion-button *ngIf="isScanning" expand="block" fill="outline" color="danger" (click)="stopScanner()">
-        <ion-icon slot="start" name="stop-outline"></ion-icon>
-        Arrêter le scanner
       </ion-button>
     </div>
   </div>

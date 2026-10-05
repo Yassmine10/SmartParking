@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { ReservationService } from '../../core/services/reservation.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { Reservation } from '../../models';
 
 @Component({
@@ -17,6 +18,7 @@ export class ReservationsPage implements OnInit {
 
   constructor(
     private reservationService: ReservationService,
+    private notificationService: NotificationService,
     private router: Router,
     private alertCtrl: AlertController,
     private loadingCtrl: LoadingController,
@@ -103,8 +105,17 @@ export class ReservationsPage implements OnInit {
     this.reservationService.annulerReservation(id).subscribe({
       next: async () => {
         await loading.dismiss();
+        let reminderCleanupFailed = false;
+        try {
+          await this.notificationService.cancelReminder(id);
+        } catch (error) {
+          reminderCleanupFailed = true;
+          console.error('Réservation annulée, mais le rappel local n’a pas pu être annulé :', error);
+        }
         const toast = await this.toastCtrl.create({
-          message: 'Réservation annulée avec succès.',
+          message: reminderCleanupFailed
+            ? 'Réservation annulée, mais le rappel local doit être supprimé manuellement.'
+            : 'Réservation annulée avec succès.',
           duration: 3000,
           color: 'success',
           position: 'top'

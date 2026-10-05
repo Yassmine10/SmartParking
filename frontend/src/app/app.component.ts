@@ -26,9 +26,9 @@ export class AppComponent implements OnInit {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
     });
-    // Demande la permission de notifications locales (silencieux sur navigateur web)
+    // La permission est demandée sur Android; le service ignore explicitement le Web.
     this.notificationService.requestPermissions().catch(err =>
-      console.warn('Notification permission skipped (web):', err)
+      console.error('Impossible de demander la permission de notification :', err)
     );
   }
 
