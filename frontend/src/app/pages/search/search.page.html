@@ -1,0 +1,144 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="light">
+    <ion-title>Rechercher un Parking</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleFilters()" [color]="showFilters ? 'primary' : 'medium'">
+        <ion-icon slot="icon-only" name="options-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <ion-toolbar color="light" class="search-toolbar">
+    <ion-searchbar
+      [(ngModel)]="query"
+      (ionInput)="search()"
+      placeholder="Nom, quartier, avenue..."
+      debounce="300"
+      class="search-input">
+    </ion-searchbar>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="search-content">
+  <!-- Expandable Filter Drawer -->
+  <div *ngIf="showFilters" class="filters-panel">
+    <div class="panel-header">
+      <h4>Filtres de recherche</h4>
+      <ion-button fill="clear" size="small" color="medium" (click)="resetFilters()">
+        Réinitialiser
+      </ion-button>
+    </div>
+
+    <!-- Distance Filter -->
+    <div class="filter-group">
+      <div class="filter-label-row">
+        <span>Rayon max</span>
+        <strong>{{ maxDistanceKm }} km</strong>
+      </div>
+      <ion-range
+        [(ngModel)]="maxDistanceKm"
+        (ionChange)="search()"
+        min="1"
+        max="30"
+        step="1"
+        pin="true"
+        color="primary">
+      </ion-range>
+    </div>
+
+    <!-- Price Filter -->
+    <div class="filter-group">
+      <div class="filter-label-row">
+        <span>Tarif max / heure</span>
+        <strong>{{ maxPrice }} DT</strong>
+      </div>
+      <ion-range
+        [(ngModel)]="maxPrice"
+        (ionChange)="search()"
+        min="1"
+        max="10"
+        step="0.5"
+        pin="true"
+        color="primary">
+      </ion-range>
+    </div>
+
+    <!-- Covered / Outdoor -->
+    <div class="filter-group">
+      <span class="sub-label">Type d'emplacement</span>
+      <ion-segment [(ngModel)]="parkingType" (ionChange)="search()" class="custom-segment">
+        <ion-segment-button value="ALL">
+          <ion-label>Tous</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="COVERED">
+          <ion-label>Couvert</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="OUTDOOR">
+          <ion-label>Extérieur</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+
+    <!-- Availability Toggle -->
+    <ion-item lines="none" class="toggle-item">
+      <ion-icon name="checkmark-circle-outline" slot="start" color="primary"></ion-icon>
+      <ion-label>Places disponibles uniquement</ion-label>
+      <ion-toggle [(ngModel)]="onlyAvailable" (ionChange)="search()" slot="end" color="primary"></ion-toggle>
+    </ion-item>
+  </div>
+
+  <!-- Results Count -->
+  <div class="results-header">
+    <p>{{ parkings.length }} parkings disponibles trouvés</p>
+  </div>
+
+  <!-- Cards List -->
+  <div class="results-container">
+    <ion-card *ngFor="let p of parkings" class="search-result-card" (click)="goToDetails(p.id)">
+      <div class="card-image-box">
+        <img [src]="p.imageUrl" [alt]="p.name">
+        <div class="badge-status" [class.badge-empty]="(p.availableSpaces || 0) === 0">
+          {{ (p.availableSpaces || 0) > 0 ? (p.availableSpaces + ' places dispo') : 'Complet' }}
+        </div>
+      </div>
+
+      <ion-card-content class="card-info">
+        <div class="title-row">
+          <h4 class="parking-title">{{ p.name }}</h4>
+          <span class="rating">★ {{ p.rating }}</span>
+        </div>
+
+        <p class="address">
+          <ion-icon name="location-outline"></ion-icon>
+          {{ p.address }}
+        </p>
+
+        <div class="details-row">
+          <span class="detail-badge" *ngIf="p.distanceInKm !== null">
+            📍 {{ p.distanceInKm }} km
+          </span>
+          <span class="detail-badge price">
+            💰 {{ p.pricePerHour }} DT / h
+          </span>
+          <span class="detail-badge">
+            {{ p.isCovered ? '🏢 Couvert' : '☀️ Extérieur' }}
+          </span>
+        </div>
+
+        <div class="button-row">
+          <ion-button fill="outline" size="small" class="detail-btn" (click)="goToDetails(p.id); $event.stopPropagation()">
+            Voir détails
+          </ion-button>
+          <ion-button
+            size="small"
+            color="primary"
+            class="reserve-btn"
+            (click)="goToBooking(p.id); $event.stopPropagation()"
+            [disabled]="p.availableSpaces === 0">
+            Réserver
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

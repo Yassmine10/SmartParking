@@ -1,0 +1,29 @@
+page {
+  background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-tint) 100%);
+}
+
+.logo-container {
+  padding: 40px 0 20px;
+
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    margin: 12px 0 4px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+ion-item {
+  margin-bottom: 4px;
+  --border-radius: 8px;
+}
+
+ion-button[expand="block"] {
+  height: 48px;
+  font-weight: 600;
+}

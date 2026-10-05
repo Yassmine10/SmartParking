@@ -1,0 +1,29 @@
+.parking-card {
+  margin: 8px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  ion-card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+
+    ion-icon {
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+  }
+
+  ion-card-content {
+    padding-top: 8px;
+  }
+
+  ion-item {
+    --min-height: 36px;
+    font-size: 0.9rem;
+  }
+}

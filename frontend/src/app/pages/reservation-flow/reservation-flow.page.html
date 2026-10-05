@@ -1,0 +1,228 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="light">
+    <ion-buttons slot="start">
+      <ion-back-button [defaultHref]="'/parking-details/' + parkingId"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Réserver une place</ion-title>
+  </ion-toolbar>
+
+  <!-- Step Progress Indicator -->
+  <div class="steps-progress-bar">
+    <div class="step-item" [class.active]="currentStep >= 1" (click)="goToStep(1)">
+      <div class="step-circle">1</div>
+      <span>Horaires</span>
+    </div>
+    <div class="step-line" [class.active]="currentStep >= 2"></div>
+    <div class="step-item" [class.active]="currentStep >= 2" (click)="goToStep(2)">
+      <div class="step-circle">2</div>
+      <span>Place</span>
+    </div>
+    <div class="step-line" [class.active]="currentStep >= 3"></div>
+    <div class="step-item" [class.active]="currentStep >= 3">
+      <div class="step-circle">3</div>
+      <span>Confirmation</span>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content class="flow-content">
+  <!-- Loading state -->
+  <div *ngIf="isLoading" class="ion-padding text-center">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Chargement des places disponibles...</p>
+  </div>
+
+  <div *ngIf="!isLoading && parking" class="flow-container">
+    <!-- Parking Quick Banner -->
+    <div class="parking-summary-header">
+      <img [src]="parking.imageUrl" [alt]="parking.name">
+      <div class="header-info">
+        <h3>{{ parking.name }}</h3>
+        <p>{{ parking.address }}</p>
+        <span class="rate">{{ parking.pricePerHour }} DT / heure</span>
+      </div>
+    </div>
+
+    <!-- ==================== STEP 1: DATE, HEURE & DURÉE ==================== -->
+    <div *ngIf="currentStep === 1" class="step-card">
+      <h2 class="step-title">Étape 1 : Choisissez vos horaires</h2>
+      <p class="step-subtitle">Indiquez la date, l'heure d'arrivée et la durée de stationnement souhaitée.</p>
+
+      <div class="inputs-group">
+        <ion-item lines="inset" class="custom-field">
+          <ion-icon name="calendar-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="stacked">Date d'arrivée</ion-label>
+          <ion-input type="date" [(ngModel)]="selectedDate"></ion-input>
+        </ion-item>
+
+        <ion-item lines="inset" class="custom-field ion-margin-top">
+          <ion-icon name="time-outline" slot="start" color="primary"></ion-icon>
+          <ion-label position="stacked">Heure d'arrivée</ion-label>
+          <ion-input type="time" [(ngModel)]="selectedTime"></ion-input>
+        </ion-item>
+
+        <div class="duration-section ion-margin-top">
+          <label class="duration-label">
+            <ion-icon name="hourglass-outline"></ion-icon>
+            Durée du stationnement : <strong>{{ selectedDuration }} heure(s)</strong>
+          </label>
+          <div class="duration-chips">
+            <ion-chip
+              *ngFor="let h of [1, 2, 3, 4, 6, 8]"
+              [color]="selectedDuration === h ? 'primary' : 'medium'"
+              (click)="selectedDuration = h">
+              {{ h }}h
+            </ion-chip>
+          </div>
+        </div>
+
+        <div class="price-estimate-box">
+          <span>Montant estimé :</span>
+          <strong>{{ calculatedTotalPrice }} DT</strong>
+        </div>
+
+        <ion-button
+          expand="block"
+          class="next-btn ion-margin-top"
+          color="primary"
+          (click)="goToStep(2)">
+          Étape suivante : Choisir la place
+          <ion-icon slot="end" name="arrow-forward"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- ==================== STEP 2: SELECT PARKING SPACE ==================== -->
+    <div *ngIf="currentStep === 2" class="step-card">
+      <h2 class="step-title">Étape 2 : Sélectionnez votre place</h2>
+      <p class="step-subtitle">Touchez une place verte pour la sélectionner.</p>
+
+      <!-- Color Legend -->
+      <div class="spaces-legend">
+        <div class="legend-item"><span class="badge-dot green"></span> 🟢 Disponible</div>
+        <div class="legend-item"><span class="badge-dot red"></span> 🔴 Occupée</div>
+        <div class="legend-item"><span class="badge-dot orange"></span> 🟠 Réservée</div>
+      </div>
+
+      <!-- Floor & Type Filter -->
+      <div class="filters-row">
+        <ion-segment [(ngModel)]="selectedFloor" class="floor-segment">
+          <ion-segment-button [value]="1"><ion-label>Niveau 1</ion-label></ion-segment-button>
+          <ion-segment-button [value]="2"><ion-label>Niveau 2</ion-label></ion-segment-button>
+        </ion-segment>
+      </div>
+
+      <!-- Spaces Visual Grid -->
+      <div class="spaces-grid-container">
+        <div
+          *ngFor="let s of filteredSpaces"
+          class="space-slot"
+          [class.available]="s.status === 'AVAILABLE'"
+          [class.occupied]="s.status === 'OCCUPIED'"
+          [class.reserved]="s.status === 'RESERVED'"
+          [class.selected]="selectedSpace?.id === s.id"
+          (click)="selectSpace(s)">
+          <div class="slot-top">
+            <span class="slot-number">{{ s.number }}</span>
+            <span class="slot-dot">
+              {{ s.status === 'AVAILABLE' ? '🟢' : (s.status === 'OCCUPIED' ? '🔴' : '🟠') }}
+            </span>
+          </div>
+          <div class="slot-type">
+            <span *ngIf="s.type === 'HANDICAPPED'">♿ PMR</span>
+            <span *ngIf="s.type === 'ELECTRIC'">⚡ Born</span>
+            <span *ngIf="s.type === 'VIP'">⭐ VIP</span>
+            <span *ngIf="s.type === 'STANDARD'">🚗 Std</span>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="selectedSpace" class="selected-space-alert">
+        <ion-icon name="checkmark-circle" color="success"></ion-icon>
+        <span>Place sélectionnée : <strong>{{ selectedSpace.number }}</strong> (Niveau {{ selectedSpace.floor }})</span>
+      </div>
+
+      <div class="step-nav-buttons">
+        <ion-button fill="outline" class="back-btn" (click)="goToStep(1)">
+          Retour
+        </ion-button>
+        <ion-button
+          class="next-btn"
+          color="primary"
+          [disabled]="!selectedSpace"
+          (click)="goToStep(3)">
+          Voir le résumé
+          <ion-icon slot="end" name="arrow-forward"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- ==================== STEP 3: SUMMARY & CONFIRMATION ==================== -->
+    <div *ngIf="currentStep === 3" class="step-card">
+      <h2 class="step-title">Étape 3 : Résumé & Confirmation</h2>
+      <p class="step-subtitle">Vérifiez les détails de votre réservation avant de confirmer.</p>
+
+      <div class="summary-box">
+        <div class="summary-line">
+          <span class="label">Parking :</span>
+          <strong class="val">{{ parking.name }}</strong>
+        </div>
+        <div class="summary-line">
+          <span class="label">Place :</span>
+          <strong class="val space-highlight">{{ selectedSpace?.number }} (Niveau {{ selectedSpace?.floor }})</strong>
+        </div>
+        <div class="summary-line">
+          <span class="label">Date :</span>
+          <strong class="val">{{ selectedDate }}</strong>
+        </div>
+        <div class="summary-line">
+          <span class="label">Heure d'arrivée :</span>
+          <strong class="val">{{ selectedTime }}</strong>
+        </div>
+        <div class="summary-line">
+          <span class="label">Durée :</span>
+          <strong class="val">{{ selectedDuration }} heures</strong>
+        </div>
+        <div class="summary-line total">
+          <span class="label">Prix total :</span>
+          <strong class="val text-success">{{ calculatedTotalPrice }} DT</strong>
+        </div>
+      </div>
+
+      <!-- Payment Method Selection -->
+      <div class="payment-method-box ion-margin-top">
+        <h4>Mode de paiement</h4>
+        <ion-radio-group [(ngModel)]="selectedPaymentMethod">
+          <ion-item lines="none" class="payment-item">
+            <ion-icon name="card-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>Carte Bancaire / CIB</ion-label>
+            <ion-radio slot="end" value="CREDIT_CARD"></ion-radio>
+          </ion-item>
+          <ion-item lines="none" class="payment-item">
+            <ion-icon name="wallet-outline" slot="start" color="success"></ion-icon>
+            <ion-label>Portefeuille SmartPay (Solde)</ion-label>
+            <ion-radio slot="end" value="WALLET"></ion-radio>
+          </ion-item>
+          <ion-item lines="none" class="payment-item">
+            <ion-icon name="logo-paypal" slot="start" color="warning"></ion-icon>
+            <ion-label>PayPal</ion-label>
+            <ion-radio slot="end" value="PAYPAL"></ion-radio>
+          </ion-item>
+        </ion-radio-group>
+      </div>
+
+      <div class="step-nav-buttons ion-margin-top">
+        <ion-button fill="outline" class="back-btn" (click)="goToStep(2)">
+          Modifier
+        </ion-button>
+        <ion-button
+          class="confirm-btn"
+          color="primary"
+          (click)="confirmReservation()">
+          <ion-icon slot="start" name="checkmark-done"></ion-icon>
+          Confirmer la réservation
+        </ion-button>
+      </div>
+    </div>
+  </div>
+</ion-content>

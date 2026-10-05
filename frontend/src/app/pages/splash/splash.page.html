@@ -1,0 +1,56 @@
+<ion-content class="splash-content" [fullscreen]="true">
+
+  <!-- Décorations de fond -->
+  <div class="blob blob-top-right"></div>
+  <div class="blob blob-bottom-left"></div>
+
+  <!-- Zone du haut : logo + texte -->
+  <div class="top-section">
+
+    <div class="app-icon">
+      <ion-icon name="car-outline"></ion-icon>
+      <div class="icon-badge">
+        <ion-icon name="location"></ion-icon>
+      </div>
+    </div>
+
+    <h1 class="app-name">SmartParking</h1>
+    <p class="app-tagline">Votre place, déjà trouvée.</p>
+
+  </div>
+
+  <!-- Zone centrale : illustration voiture + route -->
+  <div class="mid-section">
+
+    <!-- Route stylisée -->
+    <div class="road">
+      <div class="road-stripe"></div>
+    </div>
+
+    <!-- Pin de localisation -->
+    <div class="location-pin">
+      <ion-icon name="location"></ion-icon>
+    </div>
+
+    <!-- Voiture -->
+    <div class="car-wrap">
+      <div class="car-body">
+        <ion-icon name="car" class="car-icon"></ion-icon>
+      </div>
+      <div class="car-wheels">
+        <div class="wheel wheel-left"></div>
+        <div class="wheel wheel-right"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bouton Commencer en bas -->
+  <div class="bottom-section">
+    <button class="start-btn" (click)="start()">
+      Commencer
+      <ion-icon name="arrow-forward-outline"></ion-icon>
+    </button>
+  </div>
+
+</ion-content>

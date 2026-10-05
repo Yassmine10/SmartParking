@@ -1,0 +1,115 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="dark">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/admin/dashboard" color="light"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      <ion-icon name="qr-code-outline" style="margin-right:6px"></ion-icon>
+      Scanner QR Code
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="scanner-content">
+
+  <!-- Scanner Zone -->
+  <div *ngIf="!scannedReservation && !isLoading" class="scanner-section">
+    <div class="scanner-hero">
+      <ion-icon name="qr-code-outline" class="qr-icon"></ion-icon>
+      <h2>Valider une réservation</h2>
+      <p>Scannez le QR Code présenté par l'utilisateur pour valider son entrée ou sa sortie.</p>
+    </div>
+
+    <div id="qr-reader" *ngIf="isScanning" class="qr-reader-box"></div>
+
+    <div *ngIf="scanError" class="scan-error">
+      <ion-icon name="warning-outline" color="danger"></ion-icon>
+      <p>{{ scanError }}</p>
+    </div>
+
+    <div class="scanner-actions">
+      <ion-button *ngIf="!isScanning" expand="block" color="primary" size="large" (click)="startScanner()">
+        <ion-icon slot="start" name="camera-outline"></ion-icon>
+        Démarrer le scanner
+      </ion-button>
+      <ion-button *ngIf="isScanning" expand="block" fill="outline" color="danger" (click)="stopScanner()">
+        <ion-icon slot="start" name="stop-outline"></ion-icon>
+        Arrêter le scanner
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-section">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Recherche de la réservation...</p>
+  </div>
+
+  <!-- Scanned Result -->
+  <div *ngIf="scannedReservation && !isLoading" class="result-section">
+    <div class="result-header">
+      <ion-icon name="checkmark-circle" color="success" class="success-icon"></ion-icon>
+      <h2>Réservation trouvée</h2>
+    </div>
+
+    <ion-card class="result-card">
+      <ion-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Utilisateur</span>
+            <strong>{{ scannedReservation.userName }}</strong>
+          </div>
+          <div class="info-item">
+            <span class="label">Parking</span>
+            <strong>{{ scannedReservation.parkingName }}</strong>
+          </div>
+          <div class="info-item">
+            <span class="label">Place</span>
+            <strong>{{ scannedReservation.spaceNumber }}</strong>
+          </div>
+          <div class="info-item">
+            <span class="label">Date</span>
+            <strong>{{ scannedReservation.startTime | date:'dd/MM/yyyy' }}</strong>
+          </div>
+          <div class="info-item">
+            <span class="label">Heure</span>
+            <strong>{{ scannedReservation.startTime | date:'HH:mm' }}</strong>
+          </div>
+          <div class="info-item">
+            <span class="label">Durée</span>
+            <strong>{{ scannedReservation.durationHours }}h</strong>
+          </div>
+          <div class="info-item">
+            <span class="label">Prix</span>
+            <strong>{{ scannedReservation.totalPrice }} DT</strong>
+          </div>
+          <div class="info-item">
+            <span class="label">Statut</span>
+            <ion-badge [color]="getStatusColor(scannedReservation.status)">
+              {{ scannedReservation.status }}
+            </ion-badge>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <ion-button *ngIf="scannedReservation.status === 'CONFIRMED'"
+        expand="block" color="success" size="large" (click)="checkIn()">
+        <ion-icon slot="start" name="enter-outline"></ion-icon>
+        Valider l'entrée
+      </ion-button>
+      <ion-button *ngIf="scannedReservation.status === 'ACTIVE'"
+        expand="block" color="warning" size="large" (click)="checkOut()">
+        <ion-icon slot="start" name="exit-outline"></ion-icon>
+        Valider la sortie
+      </ion-button>
+      <ion-button expand="block" fill="outline" color="medium" (click)="reset()">
+        <ion-icon slot="start" name="refresh-outline"></ion-icon>
+        Scanner un autre QR Code
+      </ion-button>
+    </div>
+  </div>
+
+</ion-content>

@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  smartparking-db:
+    image: postgres:16-alpine
+    container_name: smartparking_postgres
+    environment:
+      POSTGRES_DB: smartparking
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: smartparking_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@smartparking.com
+      PGADMIN_DEFAULT_PASSWORD: adminpassword
+    ports:
+      - "5050:80"
+    depends_on:
+      - smartparking-db
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

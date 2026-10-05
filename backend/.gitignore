@@ -1,0 +1,32 @@
+# ====================================================================
+# Backend SmartParking — fichiers à NE PAS versionner
+# ====================================================================
+# Le .gitignore de la racine couvre déjà ces règles. Ce fichier existe
+# pour que le backend soit correctement ignoré même s'il est copié ou
+# versionné seul (dépôt de soutenance, rendu de devoir, etc.).
+# ====================================================================
+
+# --- Secrets --------------------------------------------------------
+# .env contient DB_PASSWORD et JWT_SECRET : jamais versionné.
+# .env.example reste suivi : c'est le modèle à fournir aux autres.
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# --- Node -----------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# --- Emails écrits en mode développement ----------------------------
+# Quand SMTP_HOST est vide (cas par défaut), le serveur dépose chaque
+# email envoyé dans ce dossier. Ils contiennent des liens de
+# réinitialisation de mot de passe : données à ne jamais publier.
+emails/
+
+# --- Divers ---------------------------------------------------------
+*.pid
+*.log
+Thumbs.db
+.DS_Store

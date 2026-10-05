@@ -1,0 +1,77 @@
+# ====================================================================
+# SmartParking — fichiers à NE PAS versionner
+# ====================================================================
+# Règle d'or : un secret ne doit JAMAIS entrer dans l'historique Git.
+# Même si on supprime le fichier plus tard, il reste lisible dans les
+# anciens commits. Donc on ignore dès le départ.
+# ====================================================================
+
+# --- Secrets -------------------------------------------------------
+# Le fichier .env contient DB_PASSWORD et JWT_SECRET : jamais suivi.
+# Le .env.example (sans valeurs réelles) DOIT être suivi : c'est lui qui
+# sert de modèle. On annule donc explicitement la règle ci-dessus.
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# --- Node ----------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Backend : emails générés en mode développement ----------------
+# Quand SMTP_HOST est vide, le serveur écrit chaque email ici.
+# Ce sont des données personnelles : jamais dans un dépôt.
+backend/emails/
+*.pid
+
+# --- Frontend : builds et caches Angular/Ionic ---------------------
+frontend/www/
+frontend/.angular/
+frontend/dist/
+frontend/out-tsc/
+frontend/.ionic/
+
+# La plateforme Android, elle, EST versionnée (voir plus bas).
+
+# --- Logs ----------------------------------------------------------
+*.log
+npm-debug.log*
+
+# --- Systèmes de fichiers -----------------------------------------
+# Fenêtre
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*.swp
+*~
+
+# --- Éditeurs ------------------------------------------------------
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+.idea/
+*.sublime-workspace
+.history/
+
+# --- Credentials annexes -------------------------------------------
+# Certains fournisseurs de cloud déposent leurs clés ici.
+.gcloud/
+aws-credentials.json
+service-account*.json
+
+# --- Fichiers de travail d'outils automatisés -----------------------
+# .agents/ contient des notes de travail générées automatiquement :
+# ce ne sont pas des livrables du projet.
+.agents/

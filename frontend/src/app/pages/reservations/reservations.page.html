@@ -1,0 +1,185 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="light">
+    <ion-title>Mes Réservations</ion-title>
+  </ion-toolbar>
+
+  <ion-toolbar color="light" class="segment-toolbar">
+    <ion-segment [(ngModel)]="activeSegment" mode="md" class="custom-res-segment">
+      <ion-segment-button value="upcoming">
+        <ion-label>À venir ({{ upcomingList.length }})</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="active">
+        <ion-label>En cours ({{ activeList.length }})</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="history">
+        <ion-label>Historique ({{ historyList.length }})</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="res-content">
+  <ion-refresher slot="fixed" (ionRefresh)="loadReservations($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div *ngIf="isLoading" class="ion-padding text-center">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Chargement de vos réservations...</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="res-container">
+    <!-- UPCOMING LIST -->
+    <div *ngIf="activeSegment === 'upcoming'">
+      <div *ngIf="upcomingList.length === 0" class="empty-state">
+        <ion-icon name="calendar-outline" class="empty-icon"></ion-icon>
+        <h4>Aucune réservation à venir</h4>
+        <p>Vous n'avez pas de stationnement prévu prochainement.</p>
+        <ion-button fill="outline" color="primary" routerLink="/tabs/home">
+          Trouver un parking
+        </ion-button>
+      </div>
+
+      <ion-item-sliding *ngFor="let r of upcomingList">
+        <ion-item lines="none" class="sliding-wrapper-item">
+          <ion-card class="res-card" (click)="goToTicket(r.id)" style="width:100%;margin:0">
+            <div class="card-status-bar confirmed">
+              <span>RÉSERVATION CONFIRMÉE</span>
+              <span class="num">#{{ r.reservationNumber }}</span>
+            </div>
+            <ion-card-content class="card-inner">
+              <div class="main-info">
+                <h3 class="parking-title">{{ r.parkingName }}</h3>
+                <span class="space-badge">Place {{ r.spaceNumber }}</span>
+              </div>
+              <p class="address"><ion-icon name="location-outline"></ion-icon> {{ r.parkingAddress }}</p>
+
+              <div class="details-row">
+                <div class="item">
+                  <span class="label">Date</span>
+                  <strong>{{ r.startTime | date:'dd/MM/yyyy' }}</strong>
+                </div>
+                <div class="item">
+                  <span class="label">Heure</span>
+                  <strong>{{ r.startTime | date:'HH:mm' }}</strong>
+                </div>
+                <div class="item">
+                  <span class="label">Durée</span>
+                  <strong>{{ r.durationHours }}h</strong>
+                </div>
+                <div class="item">
+                  <span class="label">Prix</span>
+                  <strong class="text-success">{{ r.totalPrice }} DT</strong>
+                </div>
+              </div>
+
+              <ion-button expand="block" size="small" color="primary" class="qr-action-btn">
+                <ion-icon slot="start" name="qr-code-outline"></ion-icon>
+                Voir le QR Code & Ticket
+              </ion-button>
+            </ion-card-content>
+          </ion-card>
+        </ion-item>
+        <ion-item-options side="end">
+          <ion-item-option color="danger" (click)="confirmerAnnulation(r.id)">
+            <ion-icon slot="top" name="trash-outline"></ion-icon>
+            Annuler
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </div>
+
+    <!-- ACTIVE LIST -->
+    <div *ngIf="activeSegment === 'active'">
+      <div *ngIf="activeList.length === 0" class="empty-state">
+        <ion-icon name="car-sport-outline" class="empty-icon"></ion-icon>
+        <h4>Aucun stationnement en cours</h4>
+        <p>Votre véhicule n'est actuellement stationné dans aucun de nos parkings partenaires.</p>
+      </div>
+
+      <ion-item-sliding *ngFor="let r of activeList">
+        <ion-item lines="none" class="sliding-wrapper-item">
+          <ion-card class="res-card active-card" (click)="goToTicket(r.id)" style="width:100%;margin:0">
+            <div class="card-status-bar active">
+              <span>STATIONNEMENT ACTIF</span>
+              <span class="pulse-indicator"></span>
+            </div>
+            <ion-card-content class="card-inner">
+              <div class="main-info">
+                <h3 class="parking-title">{{ r.parkingName }}</h3>
+                <span class="space-badge active">Place {{ r.spaceNumber }}</span>
+              </div>
+              <p class="address"><ion-icon name="location-outline"></ion-icon> {{ r.parkingAddress }}</p>
+
+              <div class="details-row">
+                <div class="item">
+                  <span class="label">Début</span>
+                  <strong>{{ r.startTime | date:'HH:mm' }}</strong>
+                </div>
+                <div class="item">
+                  <span class="label">Fin prévue</span>
+                  <strong>{{ r.endTime | date:'HH:mm' }}</strong>
+                </div>
+                <div class="item">
+                  <span class="label">Prix</span>
+                  <strong class="text-success">{{ r.totalPrice }} DT</strong>
+                </div>
+              </div>
+
+              <ion-button expand="block" size="small" color="success" class="qr-action-btn">
+                <ion-icon slot="start" name="qr-code-outline"></ion-icon>
+                Afficher Pass Sortie
+              </ion-button>
+            </ion-card-content>
+          </ion-card>
+        </ion-item>
+        <ion-item-options side="end">
+          <ion-item-option color="danger" (click)="confirmerAnnulation(r.id)">
+            <ion-icon slot="top" name="trash-outline"></ion-icon>
+            Annuler
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
+    </div>
+
+    <!-- HISTORY LIST -->
+    <div *ngIf="activeSegment === 'history'">
+      <div *ngIf="historyList.length === 0" class="empty-state">
+        <ion-icon name="time-outline" class="empty-icon"></ion-icon>
+        <h4>Aucun historique</h4>
+        <p>Vos anciennes réservations apparaîtront ici.</p>
+      </div>
+
+      <ion-card *ngFor="let r of historyList" class="res-card history-card" (click)="goToTicket(r.id)">
+        <div class="card-status-bar" [class.completed]="r.status === 'COMPLETED'" [class.cancelled]="r.status === 'CANCELLED'">
+          <span>{{ r.status === 'COMPLETED' ? 'TERMINÉE' : 'ANNULÉE' }}</span>
+          <span class="num">#{{ r.reservationNumber }}</span>
+        </div>
+        <ion-card-content class="card-inner">
+          <div class="main-info">
+            <h3 class="parking-title">{{ r.parkingName }}</h3>
+            <span class="space-badge history">Place {{ r.spaceNumber }}</span>
+          </div>
+          <p class="address"><ion-icon name="location-outline"></ion-icon> {{ r.parkingAddress }}</p>
+
+          <div class="details-row">
+            <div class="item">
+              <span class="label">Date</span>
+              <strong>{{ r.startTime | date:'dd/MM/yyyy' }}</strong>
+            </div>
+            <div class="item">
+              <span class="label">Montant</span>
+              <strong>{{ r.totalPrice }} DT</strong>
+            </div>
+            <div class="item">
+              <span class="label">Statut Paiement</span>
+              <strong [class.text-danger]="r.status === 'CANCELLED'">
+                {{ r.status === 'CANCELLED' ? 'Remboursé' : 'Payé' }}
+              </strong>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+</ion-content>

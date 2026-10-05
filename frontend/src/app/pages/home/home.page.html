@@ -1,0 +1,154 @@
+<ion-content [fullscreen]="true" class="home-content">
+  <ion-refresher slot="fixed" (ionRefresh)="fetchParkings($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Modern Welcome Gradient Header -->
+  <div class="header-banner">
+    <div class="user-greeting">
+      <div class="avatar-wrap">
+        <img [src]="currentUser?.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'" alt="Avatar">
+      </div>
+      <div class="greeting-text">
+        <span class="sub-hi">Bienvenue sur SmartParking</span>
+        <h2 class="user-name">Bonjour, {{ currentUser?.firstName || 'Conducteur' }} 👋</h2>
+      </div>
+    </div>
+
+    <!-- GPS Button -->
+    <div class="location-bar">
+      <ion-button fill="outline" class="gps-btn" (click)="useMyLocation()" [disabled]="isLocating">
+        <ion-icon slot="start" [name]="isLocating ? 'hourglass-outline' : 'navigate'"></ion-icon>
+        <span>{{ isLocating ? 'Localisation en cours...' : 'Utiliser ma position GPS' }}</span>
+      </ion-button>
+    </div>
+
+    <!-- Searchbar -->
+    <div class="search-box">
+      <ion-searchbar
+        [(ngModel)]="searchQuery"
+        (ionInput)="onSearchChange($event)"
+        placeholder="Rechercher par nom, ville, quartier..."
+        debounce="400"
+        class="custom-searchbar">
+      </ion-searchbar>
+    </div>
+  </div>
+
+  <div class="main-body">
+    <!-- Filter Chips -->
+    <div class="filter-scroll">
+      <ion-chip [color]="activeFilter === 'all' ? 'primary' : 'medium'" (click)="setFilter('all')">
+        <ion-label>Tous</ion-label>
+      </ion-chip>
+      <ion-chip [color]="activeFilter === 'available' ? 'primary' : 'medium'" (click)="setFilter('available')">
+        <ion-icon name="checkmark-circle"></ion-icon>
+        <ion-label>Disponibles</ion-label>
+      </ion-chip>
+      <ion-chip [color]="activeFilter === 'covered' ? 'primary' : 'medium'" (click)="setFilter('covered')">
+        <ion-icon name="business"></ion-icon>
+        <ion-label>Couverts</ion-label>
+      </ion-chip>
+      <ion-chip [color]="activeFilter === 'cheap' ? 'primary' : 'medium'" (click)="setFilter('cheap')">
+        <ion-icon name="pricetag"></ion-icon>
+        <ion-label>Moins de 2.5 DT</ion-label>
+      </ion-chip>
+    </div>
+
+    <!-- Section Title -->
+    <div class="section-header">
+      <div class="title-wrap">
+        <h3>Parkings à proximité</h3>
+        <p class="subtitle">{{ parkings.length }} parkings trouvés en temps réel</p>
+      </div>
+      <ion-button fill="clear" size="small" routerLink="/tabs/map" color="primary">
+        Voir sur la carte
+        <ion-icon slot="end" name="map"></ion-icon>
+      </ion-button>
+    </div>
+
+    <!-- Loading Skeleton -->
+    <div *ngIf="isLoading" class="skeleton-list">
+      <ion-card *ngFor="let item of [1,2,3]" class="parking-card skeleton-card">
+        <ion-skeleton-text [animated]="true" style="height: 140px;"></ion-skeleton-text>
+        <ion-card-content>
+          <ion-skeleton-text [animated]="true" style="width: 60%; height: 20px;"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="width: 80%; height: 14px; margin-top: 8px;"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="width: 40%; height: 16px; margin-top: 12px;"></ion-skeleton-text>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && parkings.length === 0" class="empty-state">
+      <ion-icon name="car-outline" class="empty-icon"></ion-icon>
+      <h4>Aucun parking trouvé</h4>
+      <p>Aucun résultat ne correspond à vos critères ou à votre position actuelle.</p>
+      <ion-button fill="outline" color="primary" (click)="setFilter('all'); searchQuery = ''; fetchParkings();">
+        Réinitialiser les filtres
+      </ion-button>
+    </div>
+
+    <!-- Parkings List -->
+    <div *ngIf="!isLoading && parkings.length > 0" class="cards-list">
+      <ion-card *ngFor="let p of parkings" class="parking-card" (click)="goToDetails(p.id)">
+        <div class="card-image-box">
+          <img [src]="p.imageUrl" [alt]="p.name" loading="lazy">
+          <div class="overlay-badge" [class.badge-full]="(p.availableSpaces ?? 0) === 0">
+            <ion-icon [name]="(p.availableSpaces ?? 0) > 0 ? 'checkmark-circle' : 'close-circle'"></ion-icon>
+            <span>{{ (p.availableSpaces ?? 0) > 0 ? (p.availableSpaces + ' places libres') : 'Complet' }}</span>
+          </div>
+          <div class="rating-badge">
+            <ion-icon name="star"></ion-icon>
+            <span>{{ p.rating }}</span>
+          </div>
+        </div>
+
+        <ion-card-content class="card-body">
+          <div class="header-row">
+            <h4 class="parking-name">{{ p.name }}</h4>
+            <span class="price-tag">{{ p.pricePerHour }} DT <span>/ h</span></span>
+          </div>
+
+          <p class="address-text">
+            <ion-icon name="location-outline" color="medium"></ion-icon>
+            {{ p.address }}
+          </p>
+
+          <div class="meta-row">
+            <div class="meta-item distance" *ngIf="p.distanceInKm !== null && p.distanceInKm !== undefined">
+              <span class="emoji">📍</span>
+              <strong>{{ p.distanceInKm }} km</strong>
+            </div>
+
+            <div class="meta-item spaces">
+              <span class="emoji">🅿️</span>
+              <span class="spaces-num">{{ p.availableSpaces }}</span>
+              <span class="spaces-total">/ {{ p.totalSpaces }} places</span>
+            </div>
+
+            <div class="meta-item covered">
+              <span class="emoji">{{ p.isCovered ? '🏢' : '☀️' }}</span>
+              <span>{{ p.isCovered ? 'Couvert' : 'Extérieur' }}</span>
+            </div>
+          </div>
+
+          <div class="actions-row" (click)="$event.stopPropagation()">
+            <ion-button fill="outline" size="small" color="medium" (click)="goToDetails(p.id)" class="details-btn">
+              Détails
+            </ion-button>
+            <ion-button
+              size="small"
+              color="primary"
+              (click)="goToBooking(p.id)"
+              [disabled]="p.availableSpaces === 0"
+              class="book-btn">
+              <ion-icon slot="start" name="calendar-outline"></ion-icon>
+              Réserver
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+</ion-content>

@@ -1,0 +1,147 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="light">
+    <ion-title>Mon Profil</ion-title>
+    <ion-buttons slot="end" *ngIf="isManager">
+      <ion-button (click)="goToAdmin()" color="primary" size="small">
+        <ion-icon slot="start" name="settings-outline"></ion-icon>
+        Admin
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="profile-content">
+  <div *ngIf="user" class="profile-container">
+
+    <!-- Profile Header Card -->
+    <div class="profile-hero">
+      <div class="avatar-wrap" (click)="userFileInput.click()">
+        <img [src]="user.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80'" alt="Avatar">
+        <div class="avatar-edit-overlay">
+          <ion-icon name="camera"></ion-icon>
+        </div>
+        <input type="file" #userFileInput accept="image/*" style="display:none" (change)="onAvatarFileChange($event)">
+      </div>
+      <div class="avatar-action-btns">
+        <ion-button size="small" fill="clear" color="light" (click)="userFileInput.click()">
+          <ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
+          Importer photo
+        </ion-button>
+        <ion-button size="small" fill="clear" color="light" (click)="promptAvatarUrl()">
+          <ion-icon slot="start" name="images-outline"></ion-icon>
+          Changer URL
+        </ion-button>
+      </div>
+      <h2 class="display-name">{{ user.firstName }} {{ user.lastName }}</h2>
+      <p class="email-text">{{ user.email }}</p>
+      <ion-chip [color]="isManager ? 'dark' : 'primary'" class="role-chip">
+        <ion-icon [name]="isManager ? 'shield-checkmark' : 'person'"></ion-icon>
+        <ion-label>{{ isManager ? 'Administrateur' : 'Utilisateur' }}</ion-label>
+      </ion-chip>
+    </div>
+
+    <!-- Edit Profile Form -->
+    <ion-card class="section-card" *ngIf="profileForm">
+      <ion-card-header>
+        <div class="card-title-row">
+          <ion-card-title>Informations personnelles</ion-card-title>
+          <ion-button fill="clear" size="small" (click)="toggleEditProfile()">
+            <ion-icon slot="icon-only" [name]="isEditingProfile ? 'close-outline' : 'pencil-outline'" color="primary"></ion-icon>
+          </ion-button>
+        </div>
+      </ion-card-header>
+
+      <ion-card-content>
+        <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+          <div class="info-row" *ngIf="!isEditingProfile">
+            <span class="label">Prénom</span>
+            <strong>{{ user.firstName }}</strong>
+          </div>
+          <div class="info-row" *ngIf="!isEditingProfile">
+            <span class="label">Nom</span>
+            <strong>{{ user.lastName }}</strong>
+          </div>
+          <div class="info-row" *ngIf="!isEditingProfile">
+            <span class="label">Téléphone</span>
+            <strong>{{ user.phone || 'Non renseigné' }}</strong>
+          </div>
+
+          <div *ngIf="isEditingProfile">
+            <ion-item lines="inset" class="edit-field">
+              <ion-input formControlName="firstName" label="Prénom" labelPlacement="floating"></ion-input>
+            </ion-item>
+            <ion-item lines="inset" class="edit-field ion-margin-top">
+              <ion-input formControlName="lastName" label="Nom" labelPlacement="floating"></ion-input>
+            </ion-item>
+            <ion-item lines="inset" class="edit-field ion-margin-top">
+              <ion-input formControlName="phone" label="Téléphone" labelPlacement="floating" type="tel"></ion-input>
+            </ion-item>
+            <ion-button expand="block" type="submit" color="primary" class="save-btn ion-margin-top" [disabled]="profileForm.invalid">
+              Enregistrer les modifications
+            </ion-button>
+          </div>
+        </form>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Change Password -->
+    <ion-card class="section-card" *ngIf="passwordForm">
+      <ion-card-header>
+        <div class="card-title-row">
+          <ion-card-title>Sécurité</ion-card-title>
+          <ion-button fill="clear" size="small" (click)="toggleChangePassword()">
+            <ion-icon slot="icon-only" [name]="isChangingPassword ? 'close-outline' : 'lock-closed-outline'" color="medium"></ion-icon>
+          </ion-button>
+        </div>
+      </ion-card-header>
+
+      <ion-card-content>
+        <div *ngIf="!isChangingPassword" class="password-placeholder">
+          <ion-icon name="shield-outline" color="success"></ion-icon>
+          <span>Mot de passe sécurisé • Dernière mise à jour : récemment</span>
+        </div>
+
+        <form [formGroup]="passwordForm" (ngSubmit)="savePassword()" *ngIf="isChangingPassword">
+          <ion-item lines="inset" class="edit-field">
+            <ion-input formControlName="currentPassword" label="Mot de passe actuel" labelPlacement="floating" type="password"></ion-input>
+          </ion-item>
+          <ion-item lines="inset" class="edit-field ion-margin-top">
+            <ion-input formControlName="newPassword" label="Nouveau mot de passe (min. 6 caractères)" labelPlacement="floating" type="password"></ion-input>
+          </ion-item>
+          <ion-button expand="block" type="submit" color="warning" class="save-btn ion-margin-top" [disabled]="passwordForm.invalid">
+            Changer le mot de passe
+          </ion-button>
+        </form>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Quick Actions -->
+    <ion-card class="section-card">
+      <ion-card-content>
+        <ion-list lines="none" class="quick-list">
+          <ion-item detail="true" button routerLink="/tabs/reservations" class="action-item" *ngIf="!isManager">
+            <ion-icon name="ticket-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>Mes réservations</ion-label>
+          </ion-item>
+          <ion-item detail="true" button routerLink="/tabs/notifications" class="action-item">
+            <ion-icon name="notifications-outline" slot="start" color="warning"></ion-icon>
+            <ion-label>Mes notifications</ion-label>
+          </ion-item>
+          <ion-item detail="true" button (click)="goToAdmin()" class="action-item" *ngIf="isManager">
+            <ion-icon name="settings-outline" slot="start" color="dark"></ion-icon>
+            <ion-label>Tableau de bord Admin</ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Logout -->
+    <div class="logout-section">
+      <ion-button expand="block" fill="outline" color="danger" (click)="confirmLogout()" class="logout-btn">
+        <ion-icon slot="start" name="log-out-outline"></ion-icon>
+        Se déconnecter
+      </ion-button>
+      <p class="version-text">SmartParking v1.0.0 — Présentation Académique 2026</p>
+    </div>
+  </div>
+</ion-content>

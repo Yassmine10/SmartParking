@@ -1,0 +1,117 @@
+<ion-content [fullscreen]="true" class="details-content">
+
+  <!-- ── Loading ── -->
+  <div *ngIf="isLoading" class="loading-box">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+  </div>
+
+  <div *ngIf="!isLoading && parking">
+
+    <!-- ── Hero image ── -->
+    <div class="hero-wrap">
+      <img [src]="parking.imageUrl || 'assets/img/parking-placeholder.jpg'" [alt]="parking.name" class="hero-img" />
+      <button class="back-btn" (click)="goBack()">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+      <div class="hero-credit">Photo · Unsplash</div>
+    </div>
+
+    <!-- ── Sheet principale ── -->
+    <div class="main-sheet">
+
+      <!-- District + distance + badge -->
+      <div class="top-row">
+        <span class="district-label">
+          {{ parking.address?.split(',')[1]?.trim() || 'Parking' }}
+          <span *ngIf="parking.distanceInKm"> · {{ parking.distanceInKm }} KM</span>
+        </span>
+        <span class="avail-badge"
+              [class.full]="(parking.availableSpaces ?? 0) === 0">
+          {{ (parking.availableSpaces ?? 0) > 0 ? 'Libre' : 'Complet' }}
+        </span>
+      </div>
+
+      <!-- Nom -->
+      <h1 class="parking-name">{{ parking.name }}</h1>
+
+      <!-- Adresse -->
+      <div class="address-row">
+        <ion-icon name="location-outline"></ion-icon>
+        <span>{{ parking.address }}</span>
+      </div>
+
+      <!-- Bloc horaires + prix -->
+      <div class="info-band">
+        <div class="info-band-left">
+          <ion-icon name="time-outline" class="band-icon"></ion-icon>
+          <div>
+            <div class="band-title">Ouvert 24h/24</div>
+            <div class="band-sub">7 jours sur 7</div>
+          </div>
+        </div>
+        <div class="info-band-divider"></div>
+        <div class="info-band-right">
+          <div class="band-price">{{ parking.pricePerHour }} DT</div>
+          <div class="band-sub">par heure</div>
+          <div class="band-day">{{ (parking.pricePerHour ?? 0) * 24 | number:'1.0-0' }} DT / jour</div>
+        </div>
+      </div>
+
+      <!-- Titre sélection place -->
+      <div class="places-header">
+        <div>
+          <h3 class="places-title">Choisissez une place</h3>
+          <p class="places-sub">
+            {{ parking.availableSpaces }} disponibles sur {{ parking.totalSpaces }}
+          </p>
+        </div>
+        <div class="level-badge">Niveau -1</div>
+      </div>
+
+      <!-- Légende statuts -->
+      <div class="legend-row">
+        <span class="legend-item libre"><span class="dot"></span> Libre</span>
+        <span class="legend-item occupee"><span class="dot"></span> Occupée</span>
+        <span class="legend-item hors"><span class="dot"></span> Hors service</span>
+      </div>
+
+      <!-- Grille des places -->
+      <div class="spaces-grid" *ngIf="spaces.length > 0">
+        <button
+          *ngFor="let s of spaces"
+          class="space-btn"
+          [class.libre]="getSpaceStatut(s) === 'libre'"
+          [class.occupee]="getSpaceStatut(s) === 'occupee'"
+          [class.hors_service]="getSpaceStatut(s) === 'hors_service'"
+          [class.selected]="selectedSpace?.id === s.id"
+          [disabled]="getSpaceStatut(s) !== 'libre'"
+          (click)="selectSpace(s)">
+          <ion-icon name="car-outline" class="space-car-icon"></ion-icon>
+          <span class="space-num">{{ getSpaceNumero(s) }}</span>
+        </button>
+      </div>
+
+      <!-- Espace pour la barre fixe -->
+      <div style="height: 80px"></div>
+
+    </div>
+  </div>
+
+</ion-content>
+
+<!-- ── Barre fixe de réservation ── -->
+<div *ngIf="parking && !isLoading" class="booking-bar">
+  <div class="booking-bar-left" *ngIf="selectedSpace">
+    <span class="bar-place">Place {{ getSpaceNumero(selectedSpace) }}</span>
+    <span class="bar-price">{{ parking.pricePerHour }} DT / h</span>
+  </div>
+  <div class="booking-bar-left" *ngIf="!selectedSpace">
+    <span class="bar-place">Aucune place sélectionnée</span>
+    <span class="bar-price">{{ parking.pricePerHour }} DT / h</span>
+  </div>
+  <button class="reserve-btn"
+          (click)="openReservationModal()"
+          [disabled]="!selectedSpace || (parking.availableSpaces ?? 0) === 0">
+    Réserver
+  </button>
+</div>

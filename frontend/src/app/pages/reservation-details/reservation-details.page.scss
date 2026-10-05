@@ -1,0 +1,186 @@
+$dark-bg:   #0f172a;
+$dark-card: #1e293b;
+$green:     #16a34a;
+
+// ── Fond sombre ───────────────────────────────────────────────────
+.qr-content {
+  --background: #{$dark-bg};
+}
+
+.loading-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+// ── Body ──────────────────────────────────────────────────────────
+.qr-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 56px 24px 40px;
+  min-height: 100%;
+}
+
+// ── Badge statut ──────────────────────────────────────────────────
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(22, 163, 74, 0.2);
+  border: 1.5px solid rgba(22, 163, 74, 0.4);
+  color: #4ade80;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 7px 18px;
+  border-radius: 30px;
+  margin-bottom: 24px;
+
+  ion-icon { font-size: 15px; }
+}
+
+// ── Titre ─────────────────────────────────────────────────────────
+.qr-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #ffffff;
+  text-align: center;
+  line-height: 1.25;
+  margin: 0 0 10px;
+}
+
+.qr-validity {
+  font-size: 13px;
+  color: #64748b;
+  text-align: center;
+  margin: 0 0 28px;
+}
+
+// ── QR card ───────────────────────────────────────────────────────
+.qr-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 280px;
+}
+
+.qr-img {
+  width: 220px;
+  height: 220px;
+  display: block;
+  border-radius: 4px;
+}
+
+.qr-placeholder {
+  width: 220px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-ref {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  margin-top: 12px;
+  letter-spacing: 0.5px;
+}
+
+// ── Carte infos ───────────────────────────────────────────────────
+.info-card {
+  background: $dark-card;
+  border-radius: 18px;
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.info-card-top {
+  display: flex;
+  align-items: stretch;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.info-mini-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.6px;
+  margin-bottom: 6px;
+}
+
+.info-place-col {
+  flex-shrink: 0;
+  margin-right: 20px;
+}
+
+.info-place-num {
+  font-size: 28px;
+  font-weight: 800;
+  color: #16a34a;
+}
+
+.info-divider {
+  width: 1px;
+  background: rgba(255,255,255,0.08);
+  margin-right: 20px;
+  align-self: stretch;
+}
+
+.info-parking-col { flex: 1; }
+
+.info-parking-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 3px;
+}
+
+.info-parking-addr {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.info-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 16px 20px;
+}
+
+.time-block { text-align: center; }
+
+.time-val {
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.arrow-icon {
+  font-size: 18px;
+  color: #475569;
+}
+
+// ── Bouton annuler ────────────────────────────────────────────────
+.cancel-btn {
+  width: 100%;
+  padding: 16px;
+  background: transparent;
+  border: 1.5px solid rgba(239, 68, 68, 0.5);
+  border-radius: 16px;
+  color: #f87171;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:active { background: rgba(239, 68, 68, 0.1); }
+}

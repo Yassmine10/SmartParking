@@ -1,0 +1,31 @@
+<ion-tabs>
+  <ion-tab-bar slot="bottom" class="custom-tab-bar">
+    <ion-tab-button tab="home">
+      <ion-icon name="home-outline"></ion-icon>
+      <ion-label>Accueil</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="map">
+      <ion-icon name="map-outline"></ion-icon>
+      <ion-label>Carte</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="reservations">
+      <ion-icon name="ticket-outline"></ion-icon>
+      <ion-label>Réservations</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="notifications">
+      <ion-icon name="notifications-outline"></ion-icon>
+      <ion-label>Alertes</ion-label>
+      <ion-badge color="danger" *ngIf="(unreadCount$ | async) as count">
+        {{ count > 9 ? '9+' : count }}
+      </ion-badge>
+    </ion-tab-button>
+
+    <ion-tab-button tab="profile">
+      <ion-icon name="person-outline"></ion-icon>
+      <ion-label>Profil</ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>

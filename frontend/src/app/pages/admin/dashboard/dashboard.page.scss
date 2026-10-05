@@ -1,0 +1,253 @@
+// ── Palette verte ─────────────────────────────────────────────────
+$green:        #16a34a;
+$green-light:  #22c55e;
+$green-soft:   rgba(34, 197, 94, 0.18);
+$green-bg:     #f0fdf4;
+$text-dark:    #0f172a;
+$text-mid:     #475569;
+$text-muted:   #94a3b8;
+$white:        #ffffff;
+$card-bg:      #ffffff;
+$page-bg:      #f4f9f6;
+$border:       #e2e8f0;
+
+// ── Toolbar ────────────────────────────────────────────────────────
+.dash-toolbar {
+  --background: #{$white};
+  --color: #{$text-dark};
+  --border-width: 0;
+  box-shadow: 0 1px 0 $border;
+}
+
+.dash-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: $text-dark;
+}
+
+// ── Content ────────────────────────────────────────────────────────
+.dash-content {
+  --background: #{$page-bg};
+}
+
+.dash-body {
+  padding: 16px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+// ── Skeleton ───────────────────────────────────────────────────────
+.skeleton-wrap {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.skel-period { height: 44px; border-radius: 22px; }
+.skel-hero   { height: 120px; border-radius: 20px; }
+.skel-chart  { height: 200px; border-radius: 16px; }
+
+// ── Sélecteur de période ───────────────────────────────────────────
+.period-selector {
+  display: flex;
+  background: $white;
+  border-radius: 24px;
+  padding: 4px;
+  gap: 4px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+
+.period-btn {
+  flex: 1;
+  padding: 9px 0;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-mid;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &.active {
+    background: $green;
+    color: $white;
+    box-shadow: 0 2px 8px rgba(22,163,74,.35);
+  }
+}
+
+// ── Hero row ───────────────────────────────────────────────────────
+.hero-row {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 12px;
+}
+
+.hero-card {
+  border-radius: 20px;
+  padding: 20px 18px;
+
+  &.hero-main {
+    background: $green;
+    color: $white;
+  }
+
+  &.hero-secondary {
+    background: $white;
+    color: $text-dark;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  }
+}
+
+.hero-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  opacity: 0.75;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.hero-value {
+  font-size: 38px;
+  font-weight: 800;
+  line-height: 1;
+  color: $white;
+
+  &.secondary { color: $text-dark; font-size: 30px; }
+
+  .hero-unit       { font-size: 22px; font-weight: 700; }
+  .hero-unit-small { font-size: 14px; font-weight: 600; color: $text-mid; }
+}
+
+.hero-trend {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 10px;
+  opacity: 0.85;
+
+  &.up { color: $white; }
+  &.green-text { color: $green; opacity: 1; }
+
+  ion-icon { font-size: 13px; }
+}
+
+// ── Réservations row ───────────────────────────────────────────────
+.reserv-row {
+  background: $white;
+  border-radius: 20px;
+  padding: 18px 18px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 4px rgba(0,0,0,.07);
+}
+
+.reserv-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reserv-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: $text-muted;
+  text-transform: uppercase;
+}
+
+.reserv-value {
+  font-size: 44px;
+  font-weight: 800;
+  color: $text-dark;
+  line-height: 1;
+}
+
+.reserv-chart-wrap {
+  width: 140px;
+  height: 56px;
+}
+
+// ── Chart cards ────────────────────────────────────────────────────
+.chart-card {
+  background: $white;
+  border-radius: 20px;
+  padding: 18px 16px 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.07);
+}
+
+.chart-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.chart-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: $text-dark;
+}
+
+.chart-sub {
+  font-size: 11px;
+  color: $text-muted;
+  margin-top: 2px;
+}
+
+.chart-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: $green-light;
+  background: $green-soft;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.chart-total {
+  font-size: 18px;
+  font-weight: 800;
+  color: $text-dark;
+}
+
+// ── Accès rapide ───────────────────────────────────────────────────
+.quick-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.quick-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: $white;
+  border: 1.5px solid $border;
+  border-radius: 16px;
+  padding: 14px 6px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+
+  ion-icon {
+    font-size: 22px;
+    color: $green;
+  }
+
+  span {
+    font-size: 10px;
+    font-weight: 600;
+    color: $text-mid;
+  }
+
+  &:active {
+    background: $green-bg;
+    transform: scale(0.96);
+  }
+}

@@ -1,0 +1,103 @@
+<ion-app>
+  <!-- Menu latéral Ionic (ion-menu) -->
+  <ion-menu contentId="main-content" type="overlay">
+    <ion-header>
+      <ion-toolbar color="primary">
+        <ion-title>SmartParking</ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content>
+      <!-- En-tête profil utilisateur si connecté -->
+      <div *ngIf="currentUser" class="menu-header ion-padding">
+        <ion-avatar>
+          <div class="avatar-placeholder">
+            {{ currentUser.nom.charAt(0).toUpperCase() }}
+          </div>
+        </ion-avatar>
+        <h3>{{ currentUser.nom }}</h3>
+        <p>{{ currentUser.email }}</p>
+        <ion-badge [color]="currentUser.role === 'manager' ? 'warning' : 'primary'">
+          {{ currentUser.role === 'manager' ? 'Gestionnaire' : 'Utilisateur' }}
+        </ion-badge>
+      </div>
+
+      <!-- Liens de navigation communs & utilisateur -->
+      <ion-list lines="none">
+        <ion-list-header>Navigation</ion-list-header>
+
+        <ion-menu-toggle auto-hide="true">
+          <ion-item button routerLink="/tabs/home" routerDirection="root">
+            <ion-icon name="home-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>Accueil</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+        <ion-menu-toggle auto-hide="true">
+          <ion-item button routerLink="/tabs/map" routerDirection="root">
+            <ion-icon name="map-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>Carte des parkings</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+        <ion-menu-toggle auto-hide="true" *ngIf="!authService.isManager()">
+          <ion-item button routerLink="/tabs/reservations" routerDirection="root">
+            <ion-icon name="ticket-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>Mes réservations</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+        <ion-menu-toggle auto-hide="true">
+          <ion-item button routerLink="/tabs/profile" routerDirection="root">
+            <ion-icon name="person-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>Mon profil</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+      </ion-list>
+
+      <!-- Section Gestionnaire (affichée uniquement si rôle manager) -->
+      <ion-list lines="none" *ngIf="authService.isManager()">
+        <ion-list-header>Espace Gestionnaire</ion-list-header>
+
+        <ion-menu-toggle auto-hide="true">
+          <ion-item button routerLink="/admin/dashboard" routerDirection="root">
+            <ion-icon name="stats-chart-outline" slot="start" color="warning"></ion-icon>
+            <ion-label>Tableau de bord</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+        <ion-menu-toggle auto-hide="true">
+          <ion-item button routerLink="/admin/parkings" routerDirection="root">
+            <ion-icon name="business-outline" slot="start" color="warning"></ion-icon>
+            <ion-label>Gestion des parkings</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+        <ion-menu-toggle autoHide="true">
+          <ion-item button routerLink="/admin/reservations" routerDirection="root">
+            <ion-icon name="receipt-outline" slot="start" color="warning"></ion-icon>
+            <ion-label>Réservations reçues</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+        <ion-menu-toggle autoHide="true">
+          <ion-item button routerLink="/admin/admin-profile" routerDirection="root">
+            <ion-icon name="shield-checkmark-outline" slot="start" color="warning"></ion-icon>
+            <ion-label>Profil Admin</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+      </ion-list>
+    </ion-content>
+
+    <!-- Pied du menu avec bouton Déconnexion -->
+    <ion-footer *ngIf="currentUser" class="ion-no-border ion-padding">
+      <ion-button expand="block" color="danger" fill="outline" (click)="logout()">
+        <ion-icon name="log-out-outline" slot="start"></ion-icon>
+        Déconnexion
+      </ion-button>
+    </ion-footer>
+  </ion-menu>
+
+  <!-- Point de montage principal des pages -->
+  <ion-router-outlet id="main-content"></ion-router-outlet>
+</ion-app>

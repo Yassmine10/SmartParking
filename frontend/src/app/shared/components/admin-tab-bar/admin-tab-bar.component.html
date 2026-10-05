@@ -1,0 +1,38 @@
+<ion-footer class="admin-tab-footer ion-no-border">
+  <div class="admin-tab-bar">
+    <button class="tab-btn" [class.active]="activeTab === 'dashboard'" (click)="goTo('dashboard')">
+      <div class="icon-wrap">
+        <ion-icon [name]="activeTab === 'dashboard' ? 'speedometer' : 'speedometer-outline'"></ion-icon>
+      </div>
+      <span class="tab-label">Dashboard</span>
+    </button>
+
+    <button class="tab-btn" [class.active]="activeTab === 'parkings'" (click)="goTo('parkings')">
+      <div class="icon-wrap">
+        <ion-icon [name]="activeTab === 'parkings' ? 'business' : 'business-outline'"></ion-icon>
+      </div>
+      <span class="tab-label">Parkings</span>
+    </button>
+
+    <button class="tab-btn" [class.active]="activeTab === 'reservations'" (click)="goTo('reservations')">
+      <div class="icon-wrap">
+        <ion-icon [name]="activeTab === 'reservations' ? 'ticket' : 'ticket-outline'"></ion-icon>
+      </div>
+      <span class="tab-label">Réservations</span>
+    </button>
+
+    <button class="tab-btn" [class.active]="activeTab === 'scanner'" (click)="goTo('scanner')">
+      <div class="icon-wrap">
+        <ion-icon [name]="activeTab === 'scanner' ? 'qr-code' : 'qr-code-outline'"></ion-icon>
+      </div>
+      <span class="tab-label">Scanner QR</span>
+    </button>
+
+    <button class="tab-btn" [class.active]="activeTab === 'profile'" (click)="goTo('profile')">
+      <div class="icon-wrap">
+        <ion-icon [name]="activeTab === 'profile' ? 'person' : 'person-outline'"></ion-icon>
+      </div>
+      <span class="tab-label">Profil</span>
+    </button>
+  </div>
+</ion-footer>
