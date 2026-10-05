@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard } from './core/guards/role.guard';
 
@@ -42,7 +42,7 @@ const routes: Routes = [
   //
   // Chaque route associe deux gardes, ce qui n'est pas redondant :
   //
-  //   canMatch    -> SYNCHRONIQUE, joue AVANT le téléchargement du module.
+  //   canMatch    -> SYNCHRONIQUE, joue avant le chargement du module.
   //                 Si l'utilisateur n'a pas le droit d'accéder, le fichier
   //                 JS de la page n'est même pas téléchargé. C'est ce
   //                 qui remplace l'ancien canLoad, déprécié depuis
@@ -130,9 +130,9 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [
-    RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules })
-  ],
+  // Pas de préchargement global : les routes canMatch refusées ne doivent
+  // pas télécharger leurs modules avant la vérification d'accès.
+  imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
 export class AppRoutingModule {}
