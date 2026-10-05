@@ -1,9 +1,10 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NavController } from '@ionic/angular';
 import { ParkingService } from '../../../core/services/parking.service';
 import { Parking, Place } from '../../../models';
 import { AlertController, ToastController } from '@ionic/angular';
+import * as L from 'leaflet';
 
 type View = 'list' | 'form' | 'detail';
 
@@ -13,7 +14,7 @@ type View = 'list' | 'form' | 'detail';
   styleUrls: ['./parkings.page.scss'],
   standalone: false
 })
-export class AdminParkingsPage implements OnInit {
+export class AdminParkingsPage implements OnInit, OnDestroy {
 
   // ── Vues ──────────────────────────────────────────────────────────
   activeView: View = 'list';
@@ -32,6 +33,12 @@ export class AdminParkingsPage implements OnInit {
   selectedParking: any = null;
   places: Place[] = [];
   isLoadingPlaces = false;
+  newPlaceNumber = '';
+  newPlaceType = 'STANDARD';
+  isSavingPlace = false;
+
+  private locationMap: L.Map | null = null;
+  private locationMarker: L.CircleMarker | null = null;
 
   constructor(
     private parkingService: ParkingService,
@@ -47,8 +54,64 @@ export class AdminParkingsPage implements OnInit {
     this.loadParkings();
   }
 
+  addPlace(): void {
+    const numero = this.newPlaceNumber.trim();
+    if (!this.selectedParking || !numero || this.isSavingPlace) return;
+
+    this.isSavingPlace = true;
+    this.parkingService.createPlace(this.selectedParking.id, numero, this.newPlaceType).subscribe({
+      next: () => {
+        this.isSavingPlace = false;
+        this.newPlaceNumber = '';
+        this.newPlaceType = 'STANDARD';
+        this.showToast('Place ajoutée', 'success');
+        this.loadPlaces(this.selectedParking.id);
+        this.loadParkings();
+      },
+      error: err => {
+        this.isSavingPlace = false;
+        console.error('Erreur lors de l’ajout de la place :', err);
+        this.showToast(err.error?.message || 'Erreur lors de l’ajout de la place', 'danger');
+      }
+    });
+  }
+
+  async confirmDeletePlace(place: Place): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Supprimer la place',
+      message: `Supprimer la place ${this.getPlaceNumero(place)} ? Une place ayant un historique de réservation ne peut pas être supprimée.`,
+      buttons: [
+        { text: 'Annuler', role: 'cancel' },
+        {
+          text: 'Supprimer',
+          role: 'destructive',
+          handler: () => this.deletePlace(place.id)
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  private deletePlace(placeId: number): void {
+    this.parkingService.deletePlace(placeId).subscribe({
+      next: () => {
+        this.showToast('Place supprimée', 'warning');
+        if (this.selectedParking) this.loadPlaces(this.selectedParking.id);
+        this.loadParkings();
+      },
+      error: err => {
+        console.error('Erreur lors de la suppression de la place :', err);
+        this.showToast(err.error?.message || 'Erreur lors de la suppression de la place', 'danger');
+      }
+    });
+  }
+
   ionViewWillEnter() {
     this.loadParkings();
+  }
+
+  ngOnDestroy(): void {
+    this.destroyLocationMap();
   }
 
   // ── Chargement ────────────────────────────────────────────────────
@@ -63,6 +126,9 @@ export class AdminParkingsPage implements OnInit {
         else if (Array.isArray(res?.parkings)) raw = res.parkings;
         else if (Array.isArray(res?.items))    raw = res.items;
         this.parkings = raw.map((p: any) => this.normalize(p));
+        if (this.selectedParking) {
+          this.selectedParking = this.parkings.find(p => p.id === this.selectedParking.id) || this.selectedParking;
+        }
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -73,6 +139,87 @@ export class AdminParkingsPage implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  private initializeLocationMap(): void {
+    const element = document.getElementById('parking-location-map');
+    if (!element) return;
+
+    const rawLatitude = this.form.get('latitude')?.value;
+    const rawLongitude = this.form.get('longitude')?.value;
+    const latitude = Number(rawLatitude);
+    const longitude = Number(rawLongitude);
+    const hasCoordinates =
+      rawLatitude !== '' &&
+      rawLatitude !== null &&
+      rawLatitude !== undefined &&
+      rawLongitude !== '' &&
+      rawLongitude !== null &&
+      rawLongitude !== undefined &&
+      Number.isFinite(latitude) &&
+      Number.isFinite(longitude) &&
+      latitude >= -90 &&
+      latitude <= 90 &&
+      longitude >= -180 &&
+      longitude <= 180;
+    const center: L.LatLngExpression = hasCoordinates ? [latitude, longitude] : [36.8065, 10.1815];
+
+    this.locationMap = L.map(element, { scrollWheelZoom: false }).setView(center, hasCoordinates ? 15 : 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(this.locationMap);
+
+    if (hasCoordinates) this.updateLocationMarker(latitude, longitude);
+    this.locationMap.on('click', event => {
+      const lat = Number(event.latlng.lat.toFixed(7));
+      const lng = Number(event.latlng.lng.toFixed(7));
+      this.form.patchValue({ latitude: lat, longitude: lng });
+      this.updateLocationMarker(lat, lng);
+    });
+    requestAnimationFrame(() => this.locationMap?.invalidateSize());
+  }
+
+  updateLocationFromFields(): void {
+    const rawLatitude = this.form.get('latitude')?.value;
+    const rawLongitude = this.form.get('longitude')?.value;
+    if (rawLatitude === '' || rawLatitude == null || rawLongitude === '' || rawLongitude == null) return;
+    const latitude = Number(rawLatitude);
+    const longitude = Number(rawLongitude);
+    if (
+      !Number.isFinite(latitude) ||
+      !Number.isFinite(longitude) ||
+      latitude < -90 ||
+      latitude > 90 ||
+      longitude < -180 ||
+      longitude > 180
+    ) {
+      return;
+    }
+    this.updateLocationMarker(latitude, longitude);
+    this.locationMap?.setView([latitude, longitude], this.locationMap.getZoom());
+  }
+
+  private updateLocationMarker(latitude: number, longitude: number): void {
+    if (!this.locationMap) return;
+    const coordinates: L.LatLngExpression = [latitude, longitude];
+    if (this.locationMarker) {
+      this.locationMarker.setLatLng(coordinates);
+      return;
+    }
+    this.locationMarker = L.circleMarker(coordinates, {
+      radius: 9,
+      color: '#ffffff',
+      weight: 3,
+      fillColor: '#10b981',
+      fillOpacity: 1
+    }).addTo(this.locationMap);
+  }
+
+  private destroyLocationMap(): void {
+    this.locationMap?.off();
+    this.locationMap?.remove();
+    this.locationMap = null;
+    this.locationMarker = null;
   }
 
   loadPlaces(parkingId: number) {
@@ -99,8 +246,8 @@ export class AdminParkingsPage implements OnInit {
       name:         [p?.name        || p?.nom            || '', Validators.required],
       address:      [p?.address     || p?.adresse        || '', Validators.required],
       description:  [p?.description || ''],
-      latitude:     [p?.latitude    || '', Validators.required],
-      longitude:    [p?.longitude   || '', Validators.required],
+      latitude:     [p?.latitude ?? '', [Validators.required, Validators.min(-90), Validators.max(90)]],
+      longitude:    [p?.longitude ?? '', [Validators.required, Validators.min(-180), Validators.max(180)]],
       pricePerHour: [p?.pricePerHour ?? p?.prix_heure    ?? '', [Validators.required, Validators.min(0)]],
       totalSpaces:  [p?.totalSpaces  || p?.places_totales || '', [Validators.required, Validators.min(1)]],
       openingTime:  [p?.openingTime  || '06:00', Validators.required],
@@ -113,6 +260,7 @@ export class AdminParkingsPage implements OnInit {
   // ── Navigation entre vues ─────────────────────────────────────────
 
   showList() {
+    this.destroyLocationMap();
     this.activeView = 'list';
     this.selectedParking = null;
     this.isEditing = false;
@@ -125,23 +273,30 @@ export class AdminParkingsPage implements OnInit {
   }
 
   openAdd() {
+    this.destroyLocationMap();
     this.isEditing = false;
     this.editingId = null;
     this.initForm();
     this.activeView = 'form';
     this.cdr.detectChanges();
+    setTimeout(() => this.initializeLocationMap(), 100);
   }
 
   openEdit(p: any) {
+    this.destroyLocationMap();
     this.isEditing = true;
     this.editingId = p.id;
     this.initForm(p);
     this.activeView = 'form';
     this.cdr.detectChanges();
+    setTimeout(() => this.initializeLocationMap(), 100);
   }
 
   openDetail(p: any) {
+    this.destroyLocationMap();
     this.selectedParking = p;
+    this.newPlaceNumber = '';
+    this.newPlaceType = 'STANDARD';
     this.activeView = 'detail';
     this.loadPlaces(p.id);
     this.cdr.detectChanges();
@@ -159,6 +314,7 @@ export class AdminParkingsPage implements OnInit {
       this.parkingService.updateParking(this.editingId, data).subscribe({
         next: () => {
           this.isSaving = false;
+          this.destroyLocationMap();
           this.showToast('Parking mis à jour ✅', 'success');
           this.activeView = 'list';
           this.isEditing = false;
@@ -177,6 +333,7 @@ export class AdminParkingsPage implements OnInit {
       this.parkingService.createParking(data).subscribe({
         next: () => {
           this.isSaving = false;
+          this.destroyLocationMap();
           this.showToast('Parking créé ✅', 'success');
           this.activeView = 'list';
           this.form.reset();

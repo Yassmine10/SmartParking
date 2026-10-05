@@ -142,14 +142,18 @@
           <ion-card-subtitle>Coordonnées GPS</ion-card-subtitle>
         </ion-card-header>
         <ion-card-content>
+          <p class="location-map-help">Touchez la carte pour choisir l'emplacement du parking.</p>
+          <div id="parking-location-map" class="location-map"></div>
           <div class="two-col">
             <ion-item>
               <ion-input formControlName="latitude" label="Latitude *"
-                labelPlacement="floating" type="number" placeholder="36.80"></ion-input>
+                labelPlacement="floating" type="number" placeholder="36.80"
+                (ionInput)="updateLocationFromFields()"></ion-input>
             </ion-item>
             <ion-item>
               <ion-input formControlName="longitude" label="Longitude *"
-                labelPlacement="floating" type="number" placeholder="10.18"></ion-input>
+                labelPlacement="floating" type="number" placeholder="10.18"
+                (ionInput)="updateLocationFromFields()"></ion-input>
             </ion-item>
           </div>
         </ion-card-content>
@@ -165,7 +169,7 @@
               <ion-input formControlName="pricePerHour" label="Prix/h (DT) *"
                 labelPlacement="floating" type="number" placeholder="2.50"></ion-input>
             </ion-item>
-            <ion-item>
+            <ion-item *ngIf="!isEditing">
               <ion-input formControlName="totalSpaces" label="Nb places *"
                 labelPlacement="floating" type="number" placeholder="10"></ion-input>
             </ion-item>
@@ -180,6 +184,9 @@
                 labelPlacement="floating" placeholder="23:00"></ion-input>
             </ion-item>
           </div>
+          <ion-note *ngIf="isEditing" color="medium">
+            Ajoutez ou supprimez les places depuis le détail du parking.
+          </ion-note>
         </ion-card-content>
       </ion-card>
 
@@ -320,6 +327,39 @@
       </ion-card-header>
       <ion-card-content style="padding:0">
 
+        <div class="place-editor">
+          <ion-item>
+            <ion-input
+              [(ngModel)]="newPlaceNumber"
+              [ngModelOptions]="{ standalone: true }"
+              label="Numéro de la place"
+              labelPlacement="floating"
+              maxlength="20"
+              placeholder="Ex. P11">
+            </ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-select
+              [(ngModel)]="newPlaceType"
+              [ngModelOptions]="{ standalone: true }"
+              label="Type de place"
+              labelPlacement="floating">
+              <ion-select-option value="STANDARD">Standard</ion-select-option>
+              <ion-select-option value="HANDICAPE">Accessible</ion-select-option>
+              <ion-select-option value="ELECTRIQUE">Électrique</ion-select-option>
+              <ion-select-option value="VIP">VIP</ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-button
+            expand="block"
+            class="ion-margin"
+            [disabled]="!newPlaceNumber.trim() || isSavingPlace"
+            (click)="addPlace()">
+            <ion-spinner *ngIf="isSavingPlace" name="crescent" slot="start"></ion-spinner>
+            Ajouter une place
+          </ion-button>
+        </div>
+
         <div *ngIf="isLoadingPlaces" style="padding:16px">
           <ion-skeleton-text *ngFor="let i of [1,2,3]" animated style="height:50px;border-radius:8px;margin-bottom:8px"></ion-skeleton-text>
         </div>
@@ -347,6 +387,10 @@
               <ion-item-option color="success" (click)="changeStatutPlace(place.id, 'libre')">Libre</ion-item-option>
               <ion-item-option color="danger"  (click)="changeStatutPlace(place.id, 'occupee')">Occupée</ion-item-option>
               <ion-item-option color="medium"  (click)="changeStatutPlace(place.id, 'hors_service')">H.S.</ion-item-option>
+              <ion-item-option color="danger" (click)="confirmDeletePlace(place)">
+                <ion-icon slot="top" name="trash-outline"></ion-icon>
+                Supprimer
+              </ion-item-option>
             </ion-item-options>
           </ion-item-sliding>
         </ion-list>

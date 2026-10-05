@@ -1,9 +1,12 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component } from '@angular/core';
 import { ReservationService } from '../../../core/services/reservation.service';
 import { ToastController } from '@ionic/angular';
 import { Reservation } from '../../../models';
-
-declare const Html5Qrcode: any;
+import {
+  CapacitorBarcodeScanner,
+  CapacitorBarcodeScannerCameraDirection,
+  CapacitorBarcodeScannerTypeHint
+} from '@capacitor/barcode-scanner';
 
 @Component({
   selector: 'app-admin-qr-scanner',
@@ -11,57 +14,45 @@ declare const Html5Qrcode: any;
   styleUrls: ['./qr-scanner.page.scss'],
   standalone: false
 })
-export class AdminQrScannerPage implements OnInit, OnDestroy {
+export class AdminQrScannerPage {
   scannedReservation: Reservation | null = null;
   scanError = '';
   isScanning = false;
   isLoading = false;
-  html5QrCode: any;
 
   constructor(
     private reservationService: ReservationService,
     private toastCtrl: ToastController
   ) {}
 
-  ngOnInit() {}
-
-  ngOnDestroy() { this.stopScanner(); }
-
-  startScanner() {
+  async startScanner(): Promise<void> {
     this.scannedReservation = null;
     this.scanError = '';
     this.isScanning = true;
 
-    setTimeout(() => {
-      this.html5QrCode = new Html5Qrcode('qr-reader');
-      this.html5QrCode.start(
-        { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        (decodedText: string) => {
-          this.onQrScanned(decodedText);
-        },
-        (errorMessage: string) => {}
-      ).catch((err: any) => {
-        this.scanError = 'Impossible d\'accéder à la caméra: ' + err;
-        this.isScanning = false;
+    try {
+      const result = await CapacitorBarcodeScanner.scanBarcode({
+        hint: CapacitorBarcodeScannerTypeHint.QR_CODE,
+        cameraDirection: CapacitorBarcodeScannerCameraDirection.BACK,
+        scanInstructions: 'Placez le QR code dans le cadre',
+        scanText: 'Scanner'
       });
-    }, 300);
-  }
-
-  stopScanner() {
-    if (this.html5QrCode) {
-      this.html5QrCode.stop().then(() => {
-        this.html5QrCode.clear();
-        this.isScanning = false;
-      }).catch(() => { this.isScanning = false; });
+      const qrData = result.ScanResult?.trim();
+      if (qrData) {
+        this.onQrScanned(qrData);
+      }
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      this.scanError = `Impossible d'accéder à la caméra ou de lire le QR code : ${detail}`;
+    } finally {
+      this.isScanning = false;
     }
   }
 
   onQrScanned(qrData: string) {
-    this.stopScanner();
     this.isLoading = true;
     this.reservationService.getReservationByQr(qrData).subscribe({
-      next: (reservation: any) => {
+      next: (reservation: Reservation) => {
         this.scannedReservation = reservation;
         this.isLoading = false;
       },
@@ -75,7 +66,7 @@ export class AdminQrScannerPage implements OnInit, OnDestroy {
   checkIn() {
     if (!this.scannedReservation) return;
     this.reservationService.checkIn(this.scannedReservation.id).subscribe({
-      next: (updated: any) => {
+      next: (updated: Reservation) => {
         this.scannedReservation = updated;
         this.showToast('✅ Entrée validée — Réservation ACTIVE', 'success');
       },
@@ -86,7 +77,7 @@ export class AdminQrScannerPage implements OnInit, OnDestroy {
   checkOut() {
     if (!this.scannedReservation) return;
     this.reservationService.checkOut(this.scannedReservation.id).subscribe({
-      next: (updated: any) => {
+      next: (updated: Reservation) => {
         this.scannedReservation = updated;
         this.showToast('🏁 Sortie validée — Réservation TERMINÉE', 'success');
       },
@@ -99,9 +90,9 @@ export class AdminQrScannerPage implements OnInit, OnDestroy {
     this.scanError = '';
   }
 
-  getStatusColor(status?: string) {
+  getStatusColor(status?: string): string {
     if (!status) return 'medium';
-    const map: any = { CONFIRMED: 'primary', ACTIVE: 'success', COMPLETED: 'medium', CANCELLED: 'danger' };
+    const map: Record<string, string> = { CONFIRMED: 'primary', ACTIVE: 'success', COMPLETED: 'medium', CANCELLED: 'danger' };
     return map[status] || 'medium';
   }
 

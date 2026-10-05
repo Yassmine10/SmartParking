@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { LoadingController, ToastController } from '@ionic/angular';
 import { ParkingService } from '../../core/services/parking.service';
 import { ReservationService } from '../../core/services/reservation.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { Parking, ParkingSpace } from '../../models';
 
 @Component({
@@ -37,6 +38,7 @@ export class ReservationFlowPage implements OnInit {
     private router: Router,
     private parkingService: ParkingService,
     private reservationService: ReservationService,
+    private notificationService: NotificationService,
     private loadingCtrl: LoadingController,
     private toastCtrl: ToastController
   ) {}
@@ -123,14 +125,30 @@ export class ReservationFlowPage implements OnInit {
     this.reservationService.createReservation(payload).subscribe({
       next: async (res: any) => {
         await loading.dismiss();
+        const reservation = res.reservation || res;
+        const endTime = reservation.endTime || reservation.fin;
+        let reminderScheduled = false;
+        if (endTime) {
+          try {
+            reminderScheduled = await this.notificationService.scheduleReminder(
+              reservation.id,
+              endTime,
+              this.parking?.name || this.parking?.nom || 'parking'
+            );
+          } catch (error) {
+            console.error('Réservation confirmée, mais le rappel local n’a pas pu être programmé :', error);
+          }
+        }
         const toast = await this.toastCtrl.create({
-          message: 'Réservation confirmée avec succès !',
+          message: reminderScheduled
+            ? 'Réservation confirmée. Un rappel sera envoyé 15 minutes avant la fin.'
+            : 'Réservation confirmée. Aucun rappel local n’a été programmé.',
           duration: 2500,
-          color: 'success',
+          color: reminderScheduled ? 'success' : 'warning',
           position: 'top'
         });
         await toast.present();
-        const resId = res.reservation?.id || res.id;
+        const resId = reservation.id;
         this.router.navigate(['/reservation-details', resId], { replaceUrl: true });
       },
       error: async (err) => {
@@ -146,4 +164,3 @@ export class ReservationFlowPage implements OnInit {
     });
   }
 }
-

@@ -6,6 +6,71 @@
 const db = require('../config/db');
 
 /**
+ * Ajoute une place à un parking appartenant au gestionnaire connecté.
+ * POST /api/places
+ */
+async function createPlace(req, res) {
+  try {
+    const idParking = Number(req.body?.id_parking);
+    const numero = typeof req.body?.numero === 'string' ? req.body.numero.trim() : '';
+    const typePlace = String(req.body?.type_place || 'STANDARD').toUpperCase();
+    const typesValides = ['STANDARD', 'HANDICAPE', 'ELECTRIQUE', 'VIP'];
+
+    if (!Number.isInteger(idParking) || idParking <= 0 || !numero || numero.length > 20) {
+      return res.status(400).json({
+        succes: false,
+        message: 'Un parking valide et un numéro de place de 1 à 20 caractères sont requis.'
+      });
+    }
+    if (!typesValides.includes(typePlace)) {
+      return res.status(400).json({
+        succes: false,
+        message: 'Type de place invalide. Valeurs autorisées : STANDARD, HANDICAPE, ELECTRIQUE, VIP.'
+      });
+    }
+
+    const parkingRes = await db.query(
+      'SELECT id_gestionnaire FROM parkings WHERE id = $1',
+      [idParking]
+    );
+    if (parkingRes.rows.length === 0) {
+      return res.status(404).json({ succes: false, message: 'Parking introuvable.' });
+    }
+    if (Number(parkingRes.rows[0].id_gestionnaire) !== Number(req.user.id)) {
+      return res.status(403).json({
+        succes: false,
+        message: 'Vous ne pouvez ajouter des places qu’à vos propres parkings.'
+      });
+    }
+
+    const result = await db.query(
+      `INSERT INTO places (id_parking, numero, type_place)
+       VALUES ($1, $2, $3)
+       RETURNING id, id_parking, numero, statut, type_place`,
+      [idParking, numero, typePlace]
+    );
+
+    return res.status(201).json({
+      succes: true,
+      message: 'Place ajoutée avec succès.',
+      place: result.rows[0]
+    });
+  } catch (error) {
+    if (error.code === '23505') {
+      return res.status(409).json({
+        succes: false,
+        message: 'Ce numéro de place existe déjà dans ce parking.'
+      });
+    }
+    console.error('Erreur lors de la création de la place :', error);
+    return res.status(500).json({
+      succes: false,
+      message: 'Erreur lors de la création de la place.'
+    });
+  }
+}
+
+/**
  * Récupère toutes les places d'un parking
  * GET /api/places/parking/:id_parking
  */
@@ -31,6 +96,76 @@ async function getPlacesByParking(req, res) {
       message: 'Erreur lors de la récupération des places.',
       erreur: error.message
     });
+  }
+}
+
+/**
+ * Supprime une place sans historique de réservation.
+ * DELETE /api/places/:id
+ */
+async function deletePlace(req, res) {
+  const idPlace = Number(req.params.id);
+  if (!Number.isInteger(idPlace) || idPlace <= 0) {
+    return res.status(400).json({ succes: false, message: 'Identifiant de place invalide.' });
+  }
+
+  let client;
+  let transactionStarted = false;
+
+  try {
+    client = await db.pool.connect();
+    await client.query('BEGIN');
+    transactionStarted = true;
+
+    const placeRes = await client.query(
+      `SELECT pl.id, p.id_gestionnaire
+       FROM places pl
+       JOIN parkings p ON p.id = pl.id_parking
+       WHERE pl.id = $1
+       FOR UPDATE`,
+      [idPlace]
+    );
+    if (placeRes.rows.length === 0) {
+      await client.query('ROLLBACK');
+      transactionStarted = false;
+      return res.status(404).json({ succes: false, message: 'Place de parking introuvable.' });
+    }
+    if (Number(placeRes.rows[0].id_gestionnaire) !== Number(req.user.id)) {
+      await client.query('ROLLBACK');
+      transactionStarted = false;
+      return res.status(403).json({
+        succes: false,
+        message: 'Vous ne pouvez supprimer des places que de vos propres parkings.'
+      });
+    }
+
+    const reservationsRes = await client.query(
+      'SELECT id FROM reservations WHERE id_place = $1 LIMIT 1',
+      [idPlace]
+    );
+    if (reservationsRes.rows.length > 0) {
+      await client.query('ROLLBACK');
+      transactionStarted = false;
+      return res.status(409).json({
+        succes: false,
+        message: 'Cette place ne peut pas être supprimée car elle possède un historique de réservations.'
+      });
+    }
+
+    await client.query('DELETE FROM places WHERE id = $1', [idPlace]);
+    await client.query('COMMIT');
+    transactionStarted = false;
+
+    return res.json({ succes: true, message: 'Place supprimée avec succès.' });
+  } catch (error) {
+    if (transactionStarted) await client.query('ROLLBACK');
+    console.error('Erreur lors de la suppression de la place :', error);
+    return res.status(500).json({
+      succes: false,
+      message: 'Erreur lors de la suppression de la place.'
+    });
+  } finally {
+    client?.release();
   }
 }
 
@@ -124,5 +259,7 @@ async function updatePlaceStatus(req, res) {
 
 module.exports = {
   getPlacesByParking,
+  createPlace,
+  deletePlace,
   updatePlaceStatus
 };

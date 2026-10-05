@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { ModalController, AlertController, LoadingController } from '@ionic/angular';
+import { ModalController, AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { Parking, Place } from '../../../models';
 import { ReservationService } from '../../../core/services/reservation.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -27,6 +27,7 @@ export class ModalReservationComponent implements OnInit {
     private reservationService: ReservationService,
     private alertCtrl: AlertController,
     private loadingCtrl: LoadingController,
+    private toastCtrl: ToastController,
     private notificationService: NotificationService
   ) {}
 
@@ -110,11 +111,29 @@ export class ModalReservationComponent implements OnInit {
         const reservation = res.reservation || res;
         // Notification rappel
         const endTime = reservation?.endTime || reservation?.fin;
+        let reminderScheduled = false;
         if (endTime) {
           const parkingName = (this.parking as any)?.nom || this.parking?.name || 'parking';
-          await this.notificationService
-            .scheduleReminder(reservation.id, endTime, parkingName)
-            .catch(() => {});
+          try {
+            reminderScheduled = await this.notificationService.scheduleReminder(
+              reservation.id,
+              endTime,
+              parkingName
+            );
+          } catch (error) {
+            console.error('Réservation confirmée, mais le rappel local n’a pas pu être programmé :', error);
+          }
+        } else {
+          console.error('Réservation confirmée sans date de fin; le rappel local n’a pas été programmé.');
+        }
+        if (!reminderScheduled) {
+          const toast = await this.toastCtrl.create({
+            message: 'Réservation confirmée, mais aucun rappel local n’a été programmé.',
+            duration: 3500,
+            color: 'warning',
+            position: 'top'
+          });
+          await toast.present();
         }
         this.modalCtrl.dismiss(reservation, 'confirmed');
       },
